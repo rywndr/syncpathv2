@@ -1,16 +1,14 @@
-import { Navbar, Footer } from "@/components/layout";
-import { getSession } from "@/lib/auth-server";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout";
 
-export default async function MainLayout({
+export default function MainLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const session = await getSession();
-
     return (
         <div className="flex min-h-screen flex-col">
-            <Navbar user={session?.user ?? null} />
+            <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
         </div>
