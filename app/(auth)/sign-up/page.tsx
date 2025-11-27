@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-server";
 import {
@@ -8,15 +9,23 @@ import {
     SocialLoginButtons,
 } from "@/components/auth";
 
-export default async function SignUpPage() {
+async function SessionCheck() {
     const session = await getSession();
 
     if (session) {
         redirect("/dashboard");
     }
 
+    return null;
+}
+
+export default function SignUpPage() {
     return (
         <AuthLayout>
+            <Suspense fallback={null}>
+                <SessionCheck />
+            </Suspense>
+
             <AuthCard
                 title="Create an account"
                 description="Enter your details to get started"
@@ -25,7 +34,9 @@ export default async function SignUpPage() {
                 footerLinkHref="/login"
             >
                 <div className="grid gap-6">
-                    <SignUpForm />
+                    <Suspense fallback={null}>
+                        <SignUpForm />
+                    </Suspense>
                     <AuthDivider />
                     <SocialLoginButtons />
                 </div>
