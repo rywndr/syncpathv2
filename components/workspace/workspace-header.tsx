@@ -1,17 +1,13 @@
-"use client";
-
-import { Plus, MoreHorizontal, Settings, Download, Upload } from "lucide-react";
+import { Plus, Download, Upload, Settings } from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function WorkspaceHeader() {
     const { addTask, projectId } = useWorkspaceStore();
@@ -41,65 +37,94 @@ export function WorkspaceHeader() {
     };
 
     return (
-        <div className="flex h-12 items-center justify-between border-b bg-background px-4">
-            {/* TODO: Revised the topbar style, look kinda goofy*/}
-            <div className="flex items-center gap-6">
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-sm bg-blue-500" />
-                        <span>Task</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rotate-45 bg-emerald-500" />
-                        <span>Milestone</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-sm bg-amber-500" />
-                        <span>Group</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-sm bg-destructive" />
-                        <span>Critical</span>
-                    </div>
+        <TooltipProvider delayDuration={300}>
+            <div className="flex h-12 items-center justify-between border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
+                <div className="flex items-center gap-2">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="size-2.5 rounded-sm bg-blue-500" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Task</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="size-2.5 rounded-sm bg-purple-500 rotate-45" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Milestone</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="size-2.5 rounded-sm bg-slate-500" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Group</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="size-2.5 rounded-sm bg-orange-500" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                            Dependency Link
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                size="sm"
+                                onClick={handleAddTask}
+                                className="h-8 w-8 p-0"
+                            >
+                                <Plus className="size-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Add new task</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                            >
+                                <Upload className="size-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Import tasks</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                            >
+                                <Download className="size-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Export project</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                            >
+                                <Settings className="size-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Settings</TooltipContent>
+                    </Tooltip>
                 </div>
             </div>
-
-            <div className="flex items-center gap-2">
-                <Button
-                    size="sm"
-                    className="h-8 text-xs"
-                    onClick={handleAddTask}
-                >
-                    <Plus className="mr-2 size-3.5" />
-                    Add Task
-                </Button>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="size-4" />
-                            <span className="sr-only">More actions</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <Upload className="mr-2 size-4" />
-                            Import Tasks
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <Download className="mr-2 size-4" />
-                            Export Project
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <Settings className="mr-2 size-4" />
-                            Project Settings
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-        </div>
+        </TooltipProvider>
     );
 }
