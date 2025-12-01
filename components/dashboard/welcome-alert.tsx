@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import { CheckCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -5,7 +6,10 @@ interface WelcomeAlertProps {
     userName?: string;
 }
 
-export function WelcomeAlert({ userName }: WelcomeAlertProps) {
+export async function WelcomeAlert({ userName }: WelcomeAlertProps) {
+    "use cache";
+    cacheLife("hours");
+
     return (
         <Alert>
             <CheckCircle className="size-4" />

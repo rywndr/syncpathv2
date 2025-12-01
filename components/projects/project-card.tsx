@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 import { Project } from "@/lib/db/schema";
 import { updateProject, deleteProject } from "@/lib/actions/project-actions";
-import { useProjectStore } from "@/lib/store/project-store";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +43,6 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
-    const { refreshProjects } = useProjectStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -62,7 +60,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
             if (result.success) {
                 toast.success("Project updated successfully");
                 setIsEditing(false);
-                refreshProjects();
                 router.refresh();
             } else {
                 toast.error(result.error || "Failed to update project");
@@ -80,7 +77,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
             const result = await deleteProject(project.id);
             if (result.success) {
                 toast.success("Project deleted successfully");
-                refreshProjects();
                 router.refresh();
             } else {
                 toast.error(result.error || "Failed to delete project");

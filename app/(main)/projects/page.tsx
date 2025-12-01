@@ -1,13 +1,10 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { eq, count } from "drizzle-orm";
 
-import { db } from "@/lib/db";
-import { project } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-server";
 import {
     NewProjectDialog,
-    ProjectCountClient,
+    ProjectCount,
     ProjectList,
 } from "@/components/projects";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +18,26 @@ function ProjectCountLoading() {
     );
 }
 
+function ProjectListLoading() {
+    return (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                    key={i}
+                    className="flex flex-col gap-6 rounded-xl border p-6 shadow-sm"
+                >
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-1/2" />
+                        <Skeleton className="h-4 w-1/4" />
+                    </div>
+                    <Skeleton className="h-2 w-full" />
+                    <Skeleton className="h-9 w-full" />
+                </div>
+            ))}
+        </div>
+    );
+}
+
 async function ProjectCountWithAuth() {
     const session = await getSession();
 
@@ -28,14 +45,17 @@ async function ProjectCountWithAuth() {
         redirect("/");
     }
 
-    const result = await db
-        .select({ count: count() })
-        .from(project)
-        .where(eq(project.userId, session.user.id));
+    return <ProjectCount userId={session.user.id} />;
+}
 
-    const initialCount = result[0]?.count ?? 0;
+async function ProjectListWithAuth() {
+    const session = await getSession();
 
-    return <ProjectCountClient initialCount={initialCount} />;
+    if (!session) {
+        redirect("/");
+    }
+
+    return <ProjectList userId={session.user.id} />;
 }
 
 async function AuthCheck() {
@@ -70,7 +90,9 @@ export default function ProjectsPage() {
                 </Suspense>
             </div>
 
-            <ProjectList />
+            <Suspense fallback={<ProjectListLoading />}>
+                <ProjectListWithAuth />
+            </Suspense>
         </div>
     );
 }

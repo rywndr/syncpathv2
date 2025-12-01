@@ -20,13 +20,11 @@ import {
 } from "@/components/ui/dialog";
 
 import { createProject } from "@/lib/actions/project-actions";
-import { useProjectStore } from "@/lib/store/project-store";
 
 export function NewProjectDialog() {
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { refreshProjects } = useProjectStore();
 
     const form = useForm({
         defaultValues: {
@@ -41,7 +39,6 @@ export function NewProjectDialog() {
                     toast.success("Project created successfully!");
                     setOpen(false);
                     form.reset();
-                    refreshProjects();
                     router.refresh();
                 } else {
                     toast.error(result.error || "Failed to create project");

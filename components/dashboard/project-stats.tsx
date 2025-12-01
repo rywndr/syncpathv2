@@ -1,9 +1,6 @@
-import { cacheLife } from "next/cache";
 import { FolderKanban } from "lucide-react";
-import { eq, count } from "drizzle-orm";
 
-import { db } from "@/lib/db";
-import { project } from "@/lib/db/schema";
+import { getProjectCount } from "@/lib/data/projects";
 import {
     Card,
     CardContent,
@@ -14,18 +11,6 @@ import {
 
 interface ProjectStatsProps {
     userId: string;
-}
-
-async function getProjectCount(userId: string) {
-    "use cache";
-    cacheLife("minutes");
-
-    const result = await db
-        .select({ count: count() })
-        .from(project)
-        .where(eq(project.userId, userId));
-
-    return result[0]?.count ?? 0;
 }
 
 export async function ProjectStats({ userId }: ProjectStatsProps) {

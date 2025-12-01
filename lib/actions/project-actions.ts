@@ -1,14 +1,30 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { project } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-server";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 function generateId() {
     return crypto.randomUUID();
+}
+
+/**
+ * Revalidate all project-related caches for a user
+ */
+async function revalidateProjectCaches(userId: string) {
+    // Invalidate cache tags
+    revalidateTag(CACHE_TAGS.PROJECTS, "max");
+    revalidateTag(CACHE_TAGS.PROJECT_COUNT, "max");
+    revalidateTag(CACHE_TAGS.PROJECT_LIST, "max");
+    revalidateTag(CACHE_TAGS.userProjects(userId), "max");
+
+    // Revalidate dashboard & projects page path to trigger immediate refetch
+    revalidatePath("/projects");
+    revalidatePath("/dashboard");
 }
 
 export async function createProject(name: string) {
@@ -48,8 +64,8 @@ export async function createProject(name: string) {
             })
             .returning();
 
-        revalidateTag("projects", "max");
-        revalidateTag(`projects-${session.user.id}`, "max");
+        // Revalidate all project caches
+        await revalidateProjectCaches(session.user.id);
 
         return { success: true, project: newProject[0] };
     } catch (error) {
@@ -110,9 +126,9 @@ export async function updateProject(projectId: string, name: string) {
             .where(eq(project.id, projectId))
             .returning();
 
-        revalidateTag("projects", "max");
-        revalidateTag(`projects-${session.user.id}`, "max");
-        revalidateTag(`project-${projectId}`, "max");
+        // Revalidate all project caches
+        await revalidateProjectCaches(session.user.id);
+        revalidateTag(CACHE_TAGS.project(projectId), "max");
 
         return { success: true, project: updatedProject[0] };
     } catch (error) {
@@ -146,8 +162,8 @@ export async function deleteProject(projectId: string) {
 
         await db.delete(project).where(eq(project.id, projectId));
 
-        revalidateTag("projects", "max");
-        revalidateTag(`projects-${session.user.id}`, "max");
+        // Revalidate all project caches
+        await revalidateProjectCaches(session.user.id);
 
         return { success: true };
     } catch (error) {
