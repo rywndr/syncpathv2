@@ -3,8 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { formatDistanceToNow } from "date-fns";
-import { MoreVertical, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { format } from "date-fns";
+import {
+    MoreVertical,
+    Pencil,
+    Trash2,
+    ExternalLink,
+    Calendar,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Project } from "@/lib/db/schema";
@@ -139,11 +145,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
                                 </Link>
                             </CardTitle>
                         )}
-                        <CardDescription>
-                            Updated{" "}
-                            {formatDistanceToNow(new Date(project.updatedAt), {
-                                addSuffix: true,
-                            })}
+                        <CardDescription className="flex items-center gap-1">
+                            <Calendar className="size-3" />
+                            Created{" "}
+                            {format(new Date(project.createdAt), "MMM d, yyyy")}
                         </CardDescription>
                     </div>
                     {!isEditing && (

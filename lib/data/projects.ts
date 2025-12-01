@@ -33,7 +33,7 @@ export async function getProjects(userId: string) {
         .select()
         .from(project)
         .where(eq(project.userId, userId))
-        .orderBy(desc(project.updatedAt));
+        .orderBy(desc(project.createdAt));
 
     return projects;
 }
