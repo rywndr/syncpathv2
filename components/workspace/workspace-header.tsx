@@ -224,19 +224,6 @@ export function WorkspaceHeader({
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0"
-                            >
-                                <Upload className="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Import tasks</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
                                 onClick={() => setExportOpen(true)}
                             >
                                 <Download className="size-4" />
