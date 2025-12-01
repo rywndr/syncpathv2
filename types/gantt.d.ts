@@ -44,6 +44,8 @@ declare module "gantt" {
         barHeight?: number;
         thickWidth?: number;
         styleOptions?: GanttStyleOptions;
+        showLinks?: boolean;
+        showDelay?: boolean;
     }
 
     export class SVGGantt {

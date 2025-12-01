@@ -28,7 +28,7 @@ export function ProjectWorkspace({
     projectId,
     initialTasks,
 }: ProjectWorkspaceProps) {
-    const { initWorkspace } = useWorkspaceStore();
+    const { initWorkspace, showLinks, showDelay } = useWorkspaceStore();
     const [viewMode, setViewMode] = useState<ViewMode>("day");
     const taskListRef = useRef<HTMLDivElement>(null);
     const ganttRef = useRef<HTMLDivElement>(null);
@@ -120,6 +120,8 @@ export function ProjectWorkspace({
                     <ResizablePanel defaultSize={50} minSize={25}>
                         <GanttView
                             viewMode={viewMode}
+                            showLinks={showLinks}
+                            showDelay={showDelay}
                             scrollRef={ganttRef}
                             onScroll={handleGanttScroll}
                         />

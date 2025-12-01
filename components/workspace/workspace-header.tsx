@@ -1,4 +1,11 @@
-import { Plus, Download, Upload, Settings } from "lucide-react";
+import {
+    Plus,
+    Download,
+    Upload,
+    Settings,
+    Link2,
+    AlertTriangle,
+} from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -8,9 +15,17 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Toggle } from "@/components/ui/toggle";
 
 export function WorkspaceHeader() {
-    const { addTask, projectId } = useWorkspaceStore();
+    const {
+        addTask,
+        projectId,
+        showLinks,
+        showDelay,
+        setShowLinks,
+        setShowDelay,
+    } = useWorkspaceStore();
 
     const handleAddTask = () => {
         if (!projectId) return;
@@ -39,36 +54,125 @@ export function WorkspaceHeader() {
     return (
         <TooltipProvider delayDuration={300}>
             <div className="flex h-12 items-center justify-between border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
-                <div className="flex items-center gap-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="size-2.5 rounded-sm bg-blue-500" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">Task</TooltipContent>
-                    </Tooltip>
+                <div className="flex items-center gap-4">
+                    {/* Legend */}
+                    <div className="flex items-center gap-2">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div
+                                    className="size-2.5 rounded-sm"
+                                    style={{ backgroundColor: "#65c16f" }}
+                                />
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">Task</TooltipContent>
+                        </Tooltip>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="size-2.5 rounded-sm bg-purple-500 rotate-45" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">Milestone</TooltipContent>
-                    </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div
+                                    className="size-2.5 rounded-sm rotate-45"
+                                    style={{ backgroundColor: "#d33daf" }}
+                                />
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                                Milestone
+                            </TooltipContent>
+                        </Tooltip>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="size-2.5 rounded-sm bg-slate-500" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">Group</TooltipContent>
-                    </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div
+                                    className="size-2.5 rounded-sm"
+                                    style={{ backgroundColor: "#3db9d3" }}
+                                />
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">Group</TooltipContent>
+                        </Tooltip>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="size-2.5 rounded-sm bg-orange-500" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                            Dependency Link
-                        </TooltipContent>
-                    </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div
+                                    className="size-2.5 rounded-sm"
+                                    style={{ backgroundColor: "#ffa011" }}
+                                />
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                                Dependency Link
+                            </TooltipContent>
+                        </Tooltip>
+
+                        {showDelay && (
+                            <>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div
+                                            className="size-2.5 rounded-sm"
+                                            style={{
+                                                backgroundColor: "#faad14",
+                                            }}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        Warning (near due)
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div
+                                            className="size-2.5 rounded-sm"
+                                            style={{
+                                                backgroundColor: "#f5222d",
+                                            }}
+                                        />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        Danger (overdue)
+                                    </TooltipContent>
+                                </Tooltip>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-4 w-px bg-border" />
+
+                    {/* Toggle controls */}
+                    <div className="flex items-center gap-1">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Toggle
+                                    size="sm"
+                                    pressed={showLinks}
+                                    onPressedChange={setShowLinks}
+                                    className="h-8 px-2 data-[state=on]:bg-accent"
+                                >
+                                    <Link2 className="size-4 mr-1" />
+                                    <span className="text-xs">Links</span>
+                                </Toggle>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Show dependency links
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Toggle
+                                    size="sm"
+                                    pressed={showDelay}
+                                    onPressedChange={setShowDelay}
+                                    className="h-8 px-2 data-[state=on]:bg-accent"
+                                >
+                                    <AlertTriangle className="size-4 mr-1" />
+                                    <span className="text-xs">Delay</span>
+                                </Toggle>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Show warning/danger for overdue tasks
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-1">

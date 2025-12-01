@@ -14,11 +14,19 @@ import type { GanttOptions } from "gantt";
 
 interface GanttViewProps {
     viewMode: ViewMode;
+    showLinks: boolean;
+    showDelay: boolean;
     onScroll?: (scrollTop: number) => void;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function GanttView({ viewMode, onScroll, scrollRef }: GanttViewProps) {
+export function GanttView({
+    viewMode,
+    showLinks,
+    showDelay,
+    onScroll,
+    scrollRef,
+}: GanttViewProps) {
     const { tasks, collapsedGroups, siblingOrder } = useWorkspaceStore();
     const [isClient, setIsClient] = useState(false);
 
@@ -73,6 +81,8 @@ export function GanttView({ viewMode, onScroll, scrollRef }: GanttViewProps) {
                 offsetY: GANTT_LAYOUT.TIMELINE_HEADER_HEIGHT,
                 rowHeight: GANTT_LAYOUT.ROW_HEIGHT,
                 barHeight: GANTT_LAYOUT.BAR_HEIGHT,
+                showLinks,
+                showDelay,
             };
 
             // If gantt instance exists, update it; otherwise create new one
@@ -91,7 +101,7 @@ export function GanttView({ viewMode, onScroll, scrollRef }: GanttViewProps) {
         };
 
         initGantt();
-    }, [isClient, ganttItems, viewMode]);
+    }, [isClient, ganttItems, viewMode, showLinks, showDelay]);
 
     // Handle scroll sync
     useEffect(() => {

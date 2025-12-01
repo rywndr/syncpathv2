@@ -14,6 +14,9 @@ interface WorkspaceStore {
     collapsedGroups: Set<string>;
     // Map of parentId (or 'root' for top-level) to ordered array of task IDs
     siblingOrder: Map<string, string[]>;
+    // Display options
+    showLinks: boolean;
+    showDelay: boolean;
 
     // Actions
     initWorkspace: (projectId: string, tasks: Task[]) => void;
@@ -28,6 +31,8 @@ interface WorkspaceStore {
         position: "before" | "after" | "inside",
     ) => void;
     getSiblingOrder: (parentId: string | null) => string[];
+    setShowLinks: (show: boolean) => void;
+    setShowDelay: (show: boolean) => void;
 }
 
 // Module-level variables for debouncing to avoid state pollution
@@ -84,6 +89,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
     isLoading: false,
     collapsedGroups: new Set<string>(),
     siblingOrder: new Map<string, string[]>(),
+    showLinks: true,
+    showDelay: true,
 
     initWorkspace: (projectId, tasks) => {
         // Ensure dates are proper Date objects (handling Next.js serialization)
@@ -430,5 +437,13 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
                 updateTask(draggedTaskId, { parentId: newParentId });
             }
         }
+    },
+
+    setShowLinks: (show: boolean) => {
+        set({ showLinks: show });
+    },
+
+    setShowDelay: (show: boolean) => {
+        set({ showDelay: show });
     },
 }));
