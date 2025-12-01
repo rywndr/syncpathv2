@@ -7,9 +7,15 @@ import { useForm } from "@tanstack/react-form";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+    emailSchema,
+    passwordSchema,
+    validateField,
+} from "@/lib/validations/auth";
 
 export function LoginForm() {
     const router = useRouter();
@@ -56,13 +62,7 @@ export function LoginForm() {
             <form.Field
                 name="email"
                 validators={{
-                    onBlur: ({ value }) => {
-                        if (!value) return "Email is required";
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(value))
-                            return "Please enter a valid email address";
-                        return undefined;
-                    },
+                    onBlur: ({ value }) => validateField(emailSchema, value),
                 }}
             >
                 {(field) => (
@@ -95,10 +95,7 @@ export function LoginForm() {
             <form.Field
                 name="password"
                 validators={{
-                    onBlur: ({ value }) => {
-                        if (!value) return "Password is required";
-                        return undefined;
-                    },
+                    onBlur: ({ value }) => validateField(passwordSchema, value),
                 }}
             >
                 {(field) => (
@@ -112,9 +109,8 @@ export function LoginForm() {
                                 Forgot password?
                             </Link>
                         </div>
-                        <Input
+                        <PasswordInput
                             id={field.name}
-                            type="password"
                             placeholder="••••••••"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}

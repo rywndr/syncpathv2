@@ -42,7 +42,7 @@ async function ProjectCountWithAuth() {
     const session = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/login");
     }
 
     return <ProjectCount userId={session.user.id} />;
@@ -52,7 +52,7 @@ async function ProjectListWithAuth() {
     const session = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/login");
     }
 
     return <ProjectList userId={session.user.id} />;
@@ -62,7 +62,7 @@ async function AuthCheck() {
     const session = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/login");
     }
 
     return null;

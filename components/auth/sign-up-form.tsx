@@ -7,9 +7,16 @@ import { useForm } from "@tanstack/react-form";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import {
+    emailSchema,
+    nameSchema,
+    newPasswordSchema,
+    validateField,
+} from "@/lib/validations/auth";
 
 export function SignUpForm() {
     const router = useRouter();
@@ -69,10 +76,7 @@ export function SignUpForm() {
             <form.Field
                 name="name"
                 validators={{
-                    onBlur: ({ value }) => {
-                        if (!value.trim()) return "Name is required";
-                        return undefined;
-                    },
+                    onBlur: ({ value }) => validateField(nameSchema, value),
                 }}
             >
                 {(field) => (
@@ -81,7 +85,7 @@ export function SignUpForm() {
                         <Input
                             id={field.name}
                             type="text"
-                            placeholder="Ferlin.Zalukhu"
+                            placeholder="John Doe"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
@@ -105,13 +109,7 @@ export function SignUpForm() {
             <form.Field
                 name="email"
                 validators={{
-                    onBlur: ({ value }) => {
-                        if (!value) return "Email is required";
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(value))
-                            return "Please enter a valid email address";
-                        return undefined;
-                    },
+                    onBlur: ({ value }) => validateField(emailSchema, value),
                 }}
             >
                 {(field) => (
@@ -144,20 +142,15 @@ export function SignUpForm() {
             <form.Field
                 name="password"
                 validators={{
-                    onBlur: ({ value }) => {
-                        if (!value) return "Password is required";
-                        if (value.length < 8)
-                            return "Password must be at least 8 characters long";
-                        return undefined;
-                    },
+                    onBlur: ({ value }) =>
+                        validateField(newPasswordSchema, value),
                 }}
             >
                 {(field) => (
                     <div className="grid gap-2">
                         <Label htmlFor={field.name}>Password</Label>
-                        <Input
+                        <PasswordInput
                             id={field.name}
-                            type="password"
                             placeholder="••••••••"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
@@ -194,9 +187,8 @@ export function SignUpForm() {
                 {(field) => (
                     <div className="grid gap-2">
                         <Label htmlFor={field.name}>Confirm Password</Label>
-                        <Input
+                        <PasswordInput
                             id={field.name}
-                            type="password"
                             placeholder="••••••••"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}

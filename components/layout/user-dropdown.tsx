@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -13,7 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { Loader2, LogOut, User } from "lucide-react";
+import { Loader2, LogOut, Settings } from "lucide-react";
 
 interface UserDropdownProps {
     user: {
@@ -55,7 +56,10 @@ export function UserDropdown({ user }: UserDropdownProps) {
         <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <Avatar className="size-8 cursor-pointer">
-                    <AvatarImage src={user.image ?? undefined} alt={user.name} />
+                    <AvatarImage
+                        src={user.image ?? undefined}
+                        alt={user.name}
+                    />
                     <AvatarFallback className="text-xs">
                         {getInitials(user.name)}
                     </AvatarFallback>
@@ -74,10 +78,10 @@ export function UserDropdown({ user }: UserDropdownProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <a href="/dashboard" className="cursor-pointer">
-                        <User className="size-4" />
-                        Profile
-                    </a>
+                    <Link href="/user" className="cursor-pointer">
+                        <Settings className="size-4" />
+                        Settings
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

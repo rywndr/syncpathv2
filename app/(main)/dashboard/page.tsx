@@ -12,7 +12,7 @@ async function ProjectStatsWithAuth() {
     const session = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/login");
     }
 
     return <ProjectStats userId={session.user.id} />;
