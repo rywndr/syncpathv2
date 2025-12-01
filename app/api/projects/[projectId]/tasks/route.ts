@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { task } from "@/lib/db/schema";
@@ -31,7 +31,8 @@ export async function GET(
         const tasks = await db
             .select()
             .from(task)
-            .where(eq(task.projectId, projectId));
+            .where(eq(task.projectId, projectId))
+            .orderBy(asc(task.createdAt));
 
         return NextResponse.json(tasks, {
             headers: {

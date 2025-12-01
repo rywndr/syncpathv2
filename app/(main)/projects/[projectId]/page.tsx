@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { project, task } from "@/lib/db/schema";
@@ -36,7 +36,8 @@ async function ProjectWorkspaceLoader({
     const tasks = await db
         .select()
         .from(task)
-        .where(eq(task.projectId, projectId));
+        .where(eq(task.projectId, projectId))
+        .orderBy(asc(task.createdAt));
 
     return <ProjectWorkspace projectId={projectId} initialTasks={tasks} />;
 }

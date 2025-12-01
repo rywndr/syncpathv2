@@ -70,23 +70,37 @@ export function buildTaskHierarchy(
         childrenMap.get(parentKey)!.push(task);
     });
 
-    // Sort children based on siblingOrder if provided
-    if (siblingOrder) {
-        childrenMap.forEach((children, parentKey) => {
-            const order = siblingOrder.get(parentKey);
-            if (order) {
-                // Sort by position in the order array
-                children.sort((a, b) => {
-                    const aIndex = order.indexOf(a.id);
-                    const bIndex = order.indexOf(b.id);
-                    // Tasks not in order array go to the end
-                    const aPos = aIndex === -1 ? Infinity : aIndex;
-                    const bPos = bIndex === -1 ? Infinity : bIndex;
-                    return aPos - bPos;
-                });
-            }
-        });
-    }
+    // Sort  w/ ssiblingOrder if provided, otherwise use createdAt
+    childrenMap.forEach((children, parentKey) => {
+        const order = siblingOrder?.get(parentKey);
+        if (order && order.length > 0) {
+            // Sort by position in the order array
+            children.sort((a, b) => {
+                const aIndex = order.indexOf(a.id);
+                const bIndex = order.indexOf(b.id);
+                // if tasks not in order array go to end, sorted by createdAt
+                if (aIndex === -1 && bIndex === -1) {
+                    const aTime = a.createdAt
+                        ? new Date(a.createdAt).getTime()
+                        : 0;
+                    const bTime = b.createdAt
+                        ? new Date(b.createdAt).getTime()
+                        : 0;
+                    return aTime - bTime;
+                }
+                const aPos = aIndex === -1 ? Infinity : aIndex;
+                const bPos = bIndex === -1 ? Infinity : bIndex;
+                return aPos - bPos;
+            });
+        } else {
+            // if no sibling order then sort by createdAt
+            children.sort((a, b) => {
+                const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return aTime - bTime;
+            });
+        }
+    });
 
     // Recursively build tree with numbering
     function buildNode(

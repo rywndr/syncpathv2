@@ -42,13 +42,20 @@ const SAVE_DELAY = 2000;
 
 /**
  * Build initial sibling order map from tasks array.
- * Groups tasks by parentId and preserves their array order.
+ * Groups tasks by parentId and sorts by createdAt
  */
 function buildSiblingOrderMap(tasks: Task[]): Map<string, string[]> {
     const orderMap = new Map<string, string[]>();
 
+    // Sort tasks by createdAt
+    const sortedTasks = [...tasks].sort((a, b) => {
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return aTime - bTime;
+    });
+
     // Group tasks by parent
-    tasks.forEach((task) => {
+    sortedTasks.forEach((task) => {
         const parentKey = task.parentId || "root";
         if (!orderMap.has(parentKey)) {
             orderMap.set(parentKey, []);
