@@ -15,6 +15,7 @@ import { GanttView } from "./gantt-view";
 
 interface ProjectWorkspaceProps {
     projectId: string;
+    projectName?: string;
     initialTasks: Task[];
 }
 
@@ -26,12 +27,14 @@ const VIEW_MODE_OPTIONS: { mode: ViewMode; label: string }[] = [
 
 export function ProjectWorkspace({
     projectId,
+    projectName = "Project",
     initialTasks,
 }: ProjectWorkspaceProps) {
     const { initWorkspace, showLinks, showDelay } = useWorkspaceStore();
     const [viewMode, setViewMode] = useState<ViewMode>("day");
     const taskListRef = useRef<HTMLDivElement>(null);
     const ganttRef = useRef<HTMLDivElement>(null);
+    const ganttContainerRef = useRef<HTMLDivElement>(null);
     const isScrolling = useRef(false);
 
     // Initialize store with data from server
@@ -76,7 +79,10 @@ export function ProjectWorkspace({
 
     return (
         <div className="flex h-[calc(100vh-4rem)] flex-col bg-background">
-            <WorkspaceHeader />
+            <WorkspaceHeader
+                ganttContainerRef={ganttContainerRef}
+                projectName={projectName}
+            />
 
             {/* Toolbar  */}
             <div
@@ -116,13 +122,15 @@ export function ProjectWorkspace({
                     <ResizableHandle withHandle />
 
                     <ResizablePanel defaultSize={50} minSize={25}>
-                        <GanttView
-                            viewMode={viewMode}
-                            showLinks={showLinks}
-                            showDelay={showDelay}
-                            scrollRef={ganttRef}
-                            onScroll={handleGanttScroll}
-                        />
+                        <div ref={ganttContainerRef} className="h-full w-full">
+                            <GanttView
+                                viewMode={viewMode}
+                                showLinks={showLinks}
+                                showDelay={showDelay}
+                                scrollRef={ganttRef}
+                                onScroll={handleGanttScroll}
+                            />
+                        </div>
                     </ResizablePanel>
                 </ResizablePanelGroup>
             </div>

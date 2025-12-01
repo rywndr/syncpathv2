@@ -39,7 +39,13 @@ async function ProjectWorkspaceLoader({
         .where(eq(task.projectId, projectId))
         .orderBy(asc(task.createdAt));
 
-    return <ProjectWorkspace projectId={projectId} initialTasks={tasks} />;
+    return (
+        <ProjectWorkspace
+            projectId={projectId}
+            projectName={existingProject[0].name}
+            initialTasks={tasks}
+        />
+    );
 }
 
 function WorkspaceLoadingFallback() {

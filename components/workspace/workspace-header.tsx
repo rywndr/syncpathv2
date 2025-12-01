@@ -21,11 +21,23 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { ExportDialog } from "./export-dialog";
+import { buildTaskHierarchy } from "@/lib/gantt/types";
 
-export function WorkspaceHeader() {
+interface WorkspaceHeaderProps {
+    ganttContainerRef: React.RefObject<HTMLDivElement | null>;
+    projectName?: string;
+}
+
+export function WorkspaceHeader({
+    ganttContainerRef,
+    projectName = "Project",
+}: WorkspaceHeaderProps) {
     const {
         addTask,
         projectId,
+        tasks,
+        siblingOrder,
         showLinks,
         showDelay,
         setShowLinks,
@@ -33,6 +45,10 @@ export function WorkspaceHeader() {
     } = useWorkspaceStore();
 
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [exportOpen, setExportOpen] = useState(false);
+
+    // Build task hierarchy for export
+    const taskNodes = buildTaskHierarchy(tasks, siblingOrder);
 
     const handleAddTask = () => {
         if (!projectId) return;
@@ -221,12 +237,22 @@ export function WorkspaceHeader() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 w-8 p-0"
+                                onClick={() => setExportOpen(true)}
                             >
                                 <Download className="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>Export project</TooltipContent>
                     </Tooltip>
+
+                    {/* Export Dialog */}
+                    <ExportDialog
+                        open={exportOpen}
+                        onOpenChange={setExportOpen}
+                        taskNodes={taskNodes}
+                        projectName={projectName}
+                        ganttContainerRef={ganttContainerRef}
+                    />
 
                     {/* Settings Dialog */}
                     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
