@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { Task } from "@/lib/db/schema";
 import { GANTT_LAYOUT } from "@/lib/gantt";
@@ -59,6 +59,25 @@ function calculateDuration(task: Task): number {
 }
 
 /**
+ * Recursively calculate total cost for a group from all descendants
+ */
+function calculateGroupCost(groupId: string, allTasks: Task[]): number {
+    let total = 0;
+    const children = allTasks.filter((t) => t.parentId === groupId);
+
+    for (const child of children) {
+        if (child.type === "group") {
+            // Recursively get cost from nested groups
+            total += calculateGroupCost(child.id, allTasks);
+        } else {
+            total += child.cost || 0;
+        }
+    }
+
+    return total;
+}
+
+/**
  * Get CSS class for drop indicator based on pos
  */
 function getDropIndicatorClass(
@@ -105,6 +124,14 @@ export function TaskRow({
     // Calc duration
     const duration = calculateDuration(task);
 
+    // Calculate cost for groups (sum of children costs)
+    const displayCost = useMemo(() => {
+        if (task.type === "group") {
+            return calculateGroupCost(task.id, allTasks);
+        }
+        return task.cost || 0;
+    }, [task.type, task.id, task.cost, allTasks]);
+
     // Get parent task name
     const parentTask = task.parentId
         ? groupTasks.find((t) => t.id === task.parentId)
@@ -113,8 +140,8 @@ export function TaskRow({
     // Available parent groups (exclude self for groups)
     const availableParents = groupTasks.filter((t) => t.id !== task.id);
 
-    // Indentation based on depth
-    const indentPadding = depth * 16;
+    // Indentation based on depth (reduced for responsiveness)
+    const indentPadding = depth * 12;
 
     // Cost handlers
     const handleCostBlur = () => {
@@ -137,7 +164,7 @@ export function TaskRow({
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                className={`group relative grid items-center gap-1 border-b px-2 text-xs transition-colors ${
+                className={`group relative grid items-center gap-0.5 border-b px-1 text-xs transition-colors ${
                     task.type === "group" ? "bg-muted/20 font-medium" : ""
                 } ${isDragging ? "opacity-50" : ""} ${
                     isDragOver
@@ -298,7 +325,7 @@ export function TaskRow({
                 </div>
 
                 {/* Percentage */}
-                <div className="min-w-0 px-1">
+                <div className="min-w-0 px-0">
                     <Input
                         type="number"
                         min={0}
@@ -309,7 +336,7 @@ export function TaskRow({
                                 percentage: parseInt(e.target.value) || 0,
                             })
                         }
-                        className="h-7 w-full border-transparent bg-transparent px-1 text-xs shadow-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-background/50 text-center"
+                        className="h-7 w-full border-transparent bg-transparent px-0 text-xs shadow-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-background/50 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                 </div>
 
@@ -317,7 +344,7 @@ export function TaskRow({
                 {/* TODO: make duration not read-only to be able to calc start and end date based on it*/}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="min-w-0 px-1 text-center text-muted-foreground cursor-default">
+                        <div className="min-w-0 px-0 text-center text-muted-foreground cursor-default text-[11px]">
                             {duration}d
                         </div>
                     </TooltipTrigger>
@@ -325,31 +352,46 @@ export function TaskRow({
                 </Tooltip>
 
                 {/* Cost */}
-                <div className="min-w-0 px-1">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Input
-                                value={costInput}
-                                onChange={handleCostChange}
-                                onBlur={handleCostBlur}
-                                className="h-7 w-full border-transparent bg-transparent px-1 text-xs shadow-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-background/50 text-right"
-                                placeholder="Rp 0"
-                            />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            {formatRupiah(task.cost || 0)}
-                        </TooltipContent>
-                    </Tooltip>
+                <div className="min-w-0 px-0">
+                    {task.type === "group" ? (
+                        // Groups show calculated cost (read-only)
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="h-7 flex items-center justify-end px-0 text-[11px] text-muted-foreground cursor-default truncate">
+                                    {formatRupiah(displayCost)}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                Total from children: {formatRupiah(displayCost)}
+                            </TooltipContent>
+                        </Tooltip>
+                    ) : (
+                        // Non-groups have editable cost
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Input
+                                    value={costInput}
+                                    onChange={handleCostChange}
+                                    onBlur={handleCostBlur}
+                                    className="h-7 w-full border-transparent bg-transparent px-0 text-[11px] shadow-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-background/50 text-right"
+                                    placeholder="Rp 0"
+                                />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {formatRupiah(task.cost || 0)}
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
                 </div>
 
                 {/* Parent Selection (only for non-group tasks) */}
-                <div className="min-w-0 px-1">
+                <div className="min-w-0 px-0">
                     {task.type !== "group" ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
-                                    className="h-7 w-full justify-start gap-1 px-1 text-xs font-normal hover:bg-background/50"
+                                    className="h-7 w-full justify-start gap-1 px-1 text-[11px] font-normal hover:bg-background/50"
                                 >
                                     <FolderTree className="size-3 shrink-0 text-muted-foreground" />
                                     <span className="truncate">
@@ -401,13 +443,13 @@ export function TaskRow({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={`h-7 w-7 ${
+                                        className={`h-6 w-6 ${
                                             task.assignee
                                                 ? "text-primary"
                                                 : "text-muted-foreground/50"
                                         }`}
                                     >
-                                        <Users className="size-3.5" />
+                                        <Users className="size-3" />
                                     </Button>
                                 </DropdownMenuTrigger>
                             </TooltipTrigger>
@@ -437,14 +479,14 @@ export function TaskRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className={`h-7 w-7 ${
+                                className={`h-6 w-6 ${
                                     (task.dependencies?.length || 0) > 0
                                         ? "text-primary"
                                         : "text-muted-foreground/50"
                                 }`}
                                 onClick={() => setDepDialogOpen(true)}
                             >
-                                <Link2 className="size-3.5" />
+                                <Link2 className="size-3" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -467,10 +509,10 @@ export function TaskRow({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive"
                                 onClick={onDelete}
                             >
-                                <Trash2 className="size-3.5" />
+                                <Trash2 className="size-3" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>Delete Task</TooltipContent>

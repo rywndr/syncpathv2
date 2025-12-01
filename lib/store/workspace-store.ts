@@ -266,6 +266,11 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
         const oldTask = tasks.find((t) => t.id === taskId);
         if (!oldTask) return;
 
+        // Auto-set percentage to 100% when status changes to completed
+        if (updates.status === "completed" && oldTask.status !== "completed") {
+            updates.percentage = 100;
+        }
+
         // Handle parentId changes - update sibling order
         let newSiblingOrder = siblingOrder;
         if (

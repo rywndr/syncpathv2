@@ -1,11 +1,7 @@
-import {
-    Plus,
-    Download,
-    Upload,
-    Settings,
-    Link2,
-    AlertTriangle,
-} from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Plus, Download, Upload, Settings } from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -15,7 +11,16 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Toggle } from "@/components/ui/toggle";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export function WorkspaceHeader() {
     const {
@@ -26,6 +31,8 @@ export function WorkspaceHeader() {
         setShowLinks,
         setShowDelay,
     } = useWorkspaceStore();
+
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const handleAddTask = () => {
         if (!projectId) return;
@@ -55,49 +62,85 @@ export function WorkspaceHeader() {
         <TooltipProvider delayDuration={300}>
             <div className="flex h-12 items-center justify-between border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
                 <div className="flex items-center gap-4">
-                    {/* Legend */}
-                    <div className="flex items-center gap-2">
+                    {/* Task Types Legend */}
+                    <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-1">
+                            Types
+                        </span>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div
-                                    className="size-2.5 rounded-sm"
-                                    style={{ backgroundColor: "#65c16f" }}
-                                />
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">Task</TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div
-                                    className="size-2.5 rounded-sm rotate-45"
-                                    style={{ backgroundColor: "#d33daf" }}
-                                />
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                    <div
+                                        className="size-2.5 rounded-sm"
+                                        style={{ backgroundColor: "#65c16f" }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">
+                                        Task
+                                    </span>
+                                </div>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
-                                Milestone
+                                Regular task
                             </TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div
-                                    className="size-2.5 rounded-sm"
-                                    style={{ backgroundColor: "#3db9d3" }}
-                                />
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                    <div
+                                        className="size-2.5 rounded-sm rotate-45"
+                                        style={{ backgroundColor: "#d33daf" }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">
+                                        Milestone
+                                    </span>
+                                </div>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Group</TooltipContent>
+                            <TooltipContent side="bottom">
+                                Key milestone
+                            </TooltipContent>
                         </Tooltip>
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div
-                                    className="size-2.5 rounded-sm"
-                                    style={{ backgroundColor: "#ffa011" }}
-                                />
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                    <div
+                                        className="size-2.5 rounded-sm"
+                                        style={{ backgroundColor: "#3db9d3" }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">
+                                        Group
+                                    </span>
+                                </div>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
-                                Dependency Link
+                                Task group / summary
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-4 w-px bg-border" />
+
+                    {/* Status Legend */}
+                    <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-1">
+                            Status
+                        </span>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                    <div
+                                        className="size-2.5 rounded-sm"
+                                        style={{ backgroundColor: "#ffa011" }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">
+                                        Link
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                                Dependency link between tasks
                             </TooltipContent>
                         </Tooltip>
 
@@ -105,73 +148,43 @@ export function WorkspaceHeader() {
                             <>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div
-                                            className="size-2.5 rounded-sm"
-                                            style={{
-                                                backgroundColor: "#faad14",
-                                            }}
-                                        />
+                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                            <div
+                                                className="size-2.5 rounded-sm"
+                                                style={{
+                                                    backgroundColor: "#faad14",
+                                                }}
+                                            />
+                                            <span className="text-[10px] text-muted-foreground">
+                                                Warning
+                                            </span>
+                                        </div>
                                     </TooltipTrigger>
                                     <TooltipContent side="bottom">
-                                        Warning (near due)
+                                        Task is near due date
                                     </TooltipContent>
                                 </Tooltip>
 
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div
-                                            className="size-2.5 rounded-sm"
-                                            style={{
-                                                backgroundColor: "#f5222d",
-                                            }}
-                                        />
+                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/50">
+                                            <div
+                                                className="size-2.5 rounded-sm"
+                                                style={{
+                                                    backgroundColor: "#f5222d",
+                                                }}
+                                            />
+                                            <span className="text-[10px] text-muted-foreground">
+                                                Overdue
+                                            </span>
+                                        </div>
                                     </TooltipTrigger>
                                     <TooltipContent side="bottom">
-                                        Danger (overdue)
+                                        Task is past due date
                                     </TooltipContent>
                                 </Tooltip>
                             </>
                         )}
-                    </div>
-
-                    {/* Divider */}
-                    <div className="h-4 w-px bg-border" />
-
-                    {/* Toggle controls */}
-                    <div className="flex items-center gap-1">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Toggle
-                                    size="sm"
-                                    pressed={showLinks}
-                                    onPressedChange={setShowLinks}
-                                    className="h-8 px-2 data-[state=on]:bg-accent"
-                                >
-                                    <Link2 className="size-4 mr-1" />
-                                    <span className="text-xs">Links</span>
-                                </Toggle>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Show dependency links
-                            </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Toggle
-                                    size="sm"
-                                    pressed={showDelay}
-                                    onPressedChange={setShowDelay}
-                                    className="h-8 px-2 data-[state=on]:bg-accent"
-                                >
-                                    <AlertTriangle className="size-4 mr-1" />
-                                    <span className="text-xs">Delay</span>
-                                </Toggle>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                Show warning/danger for overdue tasks
-                            </TooltipContent>
-                        </Tooltip>
                     </div>
                 </div>
 
@@ -215,18 +228,82 @@ export function WorkspaceHeader() {
                         <TooltipContent>Export project</TooltipContent>
                     </Tooltip>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                            >
-                                <Settings className="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Settings</TooltipContent>
-                    </Tooltip>
+                    {/* Settings Dialog */}
+                    <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <Settings className="size-4" />
+                                    </Button>
+                                </DialogTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>Settings</TooltipContent>
+                        </Tooltip>
+
+                        <DialogContent className="sm:max-w-[400px]">
+                            <DialogHeader>
+                                <DialogTitle>Gantt Settings</DialogTitle>
+                                <DialogDescription>
+                                    Configure the display options for the Gantt
+                                    chart.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="space-y-6 py-4">
+                                {/* Display Options */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-medium text-foreground">
+                                        Display Options
+                                    </h4>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-0.5">
+                                            <Label
+                                                htmlFor="show-links"
+                                                className="text-sm font-normal"
+                                            >
+                                                Show Dependency Links
+                                            </Label>
+                                            <p className="text-xs text-muted-foreground">
+                                                Display connection lines between
+                                                dependent tasks
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            id="show-links"
+                                            checked={showLinks}
+                                            onCheckedChange={setShowLinks}
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-0.5">
+                                            <Label
+                                                htmlFor="show-delay"
+                                                className="text-sm font-normal"
+                                            >
+                                                Show Delay Indicators
+                                            </Label>
+                                            <p className="text-xs text-muted-foreground">
+                                                Highlight tasks that are near
+                                                due or overdue
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            id="show-delay"
+                                            checked={showDelay}
+                                            onCheckedChange={setShowDelay}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
         </TooltipProvider>

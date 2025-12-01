@@ -18,7 +18,7 @@ export function TaskListHeader({ gridTemplate }: TaskListHeaderProps) {
                 style={{ height: GANTT_LAYOUT.TIMELINE_HEADER_HEIGHT }}
             >
                 <div
-                    className="grid h-full items-end gap-1 pb-2 text-[10px] font-medium text-muted-foreground uppercase tracking-wide"
+                    className="grid h-full items-end gap-0.5 pb-2 text-[9px] font-medium text-muted-foreground uppercase tracking-wide"
                     style={{ gridTemplateColumns: gridTemplate }}
                 >
                     {/* Drag Handle */}
@@ -28,33 +28,31 @@ export function TaskListHeader({ gridTemplate }: TaskListHeaderProps) {
                     <div className="text-center">#</div>
 
                     {/* Name */}
-                    <div className="truncate px-1">Name</div>
+                    <div className="truncate px-0.5">Name</div>
 
                     {/* Type */}
-                    <div className="truncate px-1">Type</div>
+                    <div className="truncate px-0.5">Type</div>
 
                     {/* Status */}
-                    <div className="truncate px-1">Status</div>
+                    <div className="truncate px-0.5">Status</div>
 
                     {/* Start Date */}
-                    <div className="truncate px-1">Start</div>
+                    <div className="truncate px-0.5">Start</div>
 
                     {/* End Date */}
-                    <div className="truncate px-1">End</div>
+                    <div className="truncate px-0.5">End</div>
 
                     {/* Percentage */}
-                    <div className="truncate px-1 text-center">%</div>
+                    <div className="truncate px-0 text-center">%</div>
 
                     {/* Duration */}
-                    {/* TODO: calc start and end date based on duration too*/}
-                    <div className="truncate px-1 text-center">Days</div>
+                    <div className="truncate px-0 text-center">Days</div>
 
                     {/* Cost */}
-                    {/*TODO: auto calc cost for groups based on it's childrens */}
-                    <div className="truncate px-1">Cost (IDR)</div>
+                    <div className="truncate px-0.5">Cost</div>
 
                     {/* Parent */}
-                    <div className="truncate px-1">Parent</div>
+                    <div className="truncate px-0.5">Parent</div>
 
                     {/* Assignee Icon */}
                     <Tooltip>

@@ -7,25 +7,6 @@ import { db } from "@/lib/db";
 import { task, Task, NewTask } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-server";
 
-export async function getTasks(projectId: string) {
-    try {
-        const session = await getSession();
-        if (!session?.user) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const tasks = await db
-            .select()
-            .from(task)
-            .where(eq(task.projectId, projectId));
-
-        return { success: true, tasks };
-    } catch (error) {
-        console.error("Failed to fetch tasks:", error);
-        return { success: false, error: "Failed to fetch tasks" };
-    }
-}
-
 export async function batchUpdateTasks(
     projectId: string,
     updates: Partial<Task>[],

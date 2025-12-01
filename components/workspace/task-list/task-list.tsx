@@ -3,11 +3,7 @@
 import { useRef, useState, useMemo, useCallback } from "react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { buildTaskHierarchy, flattenTaskHierarchy } from "@/lib/gantt";
-import {
-    GRID_TEMPLATE,
-    MIN_TASK_LIST_WIDTH,
-    INITIAL_DRAG_STATE,
-} from "@/lib/utils/task-constants";
+import { GRID_TEMPLATE, INITIAL_DRAG_STATE } from "@/lib/utils/task-constants";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TaskListHeader } from "./task-list-header";
 import { TaskRow } from "./task-row";
@@ -159,59 +155,62 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
 
     return (
         <TooltipProvider delayDuration={300}>
-            <div
-                className="flex h-full flex-col border-r bg-background"
-                style={{ minWidth: MIN_TASK_LIST_WIDTH }}
-            >
-                {/* Header */}
-                <TaskListHeader gridTemplate={GRID_TEMPLATE} />
+            <div className="h-full w-full border-r bg-background overflow-x-auto">
+                <div className="flex h-full flex-col min-w-[700px]">
+                    {/* Header */}
+                    <TaskListHeader gridTemplate={GRID_TEMPLATE} />
 
-                {/* List */}
-                <div
-                    ref={ref}
-                    onScroll={handleScroll}
-                    className="flex-1 overflow-y-auto overflow-x-hidden"
-                >
-                    {flatTasks.map((node) => (
-                        <TaskRow
-                            key={node.task.id}
-                            task={node.task}
-                            allTasks={tasks}
-                            groupTasks={groupTasks}
-                            number={node.number}
-                            depth={node.depth}
-                            isCollapsed={collapsedGroups.has(node.task.id)}
-                            hasChildren={hasChildren(node.task.id)}
-                            onToggleCollapse={() =>
-                                toggleGroupCollapse(node.task.id)
-                            }
-                            onUpdate={(updates) =>
-                                updateTask(node.task.id, updates)
-                            }
-                            onDelete={() => removeTask(node.task.id)}
-                            // Drag and drop props
-                            isDragging={
-                                dragState.draggedTaskId === node.task.id
-                            }
-                            isDragOver={
-                                dragState.dragOverTaskId === node.task.id
-                            }
-                            dropPosition={
-                                dragState.dragOverTaskId === node.task.id
-                                    ? dragState.dropPosition
-                                    : null
-                            }
-                            onDragStart={(e) =>
-                                handleDragStart(e, node.task.id)
-                            }
-                            onDragEnd={handleDragEnd}
-                            onDragOver={(e) =>
-                                handleDragOver(e, node.task.id, node.task.type)
-                            }
-                            onDragLeave={handleDragLeave}
-                            onDrop={(e) => handleDrop(e, node.task.id)}
-                        />
-                    ))}
+                    {/* List */}
+                    <div
+                        ref={ref}
+                        onScroll={handleScroll}
+                        className="flex-1 overflow-y-auto overflow-x-hidden"
+                    >
+                        {flatTasks.map((node) => (
+                            <TaskRow
+                                key={node.task.id}
+                                task={node.task}
+                                allTasks={tasks}
+                                groupTasks={groupTasks}
+                                number={node.number}
+                                depth={node.depth}
+                                isCollapsed={collapsedGroups.has(node.task.id)}
+                                hasChildren={hasChildren(node.task.id)}
+                                onToggleCollapse={() =>
+                                    toggleGroupCollapse(node.task.id)
+                                }
+                                onUpdate={(updates) =>
+                                    updateTask(node.task.id, updates)
+                                }
+                                onDelete={() => removeTask(node.task.id)}
+                                // Drag and drop props
+                                isDragging={
+                                    dragState.draggedTaskId === node.task.id
+                                }
+                                isDragOver={
+                                    dragState.dragOverTaskId === node.task.id
+                                }
+                                dropPosition={
+                                    dragState.dragOverTaskId === node.task.id
+                                        ? dragState.dropPosition
+                                        : null
+                                }
+                                onDragStart={(e) =>
+                                    handleDragStart(e, node.task.id)
+                                }
+                                onDragEnd={handleDragEnd}
+                                onDragOver={(e) =>
+                                    handleDragOver(
+                                        e,
+                                        node.task.id,
+                                        node.task.type,
+                                    )
+                                }
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, node.task.id)}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </TooltipProvider>

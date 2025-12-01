@@ -7,12 +7,7 @@ import { TaskDependency } from "@/lib/db/schema";
  * order in: drag-handle, row#, name, type, status, start, end, %, days, cost, parent, assignee, deps, delete
  */
 export const GRID_TEMPLATE =
-    "20px 28px minmax(150px, 2.5fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(100px, 1.2fr) minmax(100px, 1.2fr) minmax(50px, 0.6fr) minmax(50px, 0.6fr) minmax(100px, 1.2fr) minmax(100px, 1.2fr) 32px 32px 32px";
-
-/**
- * Min width to ensure all columns are visible and not squished
- */
-export const MIN_TASK_LIST_WIDTH = 1050;
+    "20px 28px minmax(80px, 2fr) minmax(50px, 0.8fr) minmax(55px, 0.8fr) minmax(85px, 1fr) minmax(85px, 1fr) 40px 40px minmax(60px, 0.9fr) minmax(60px, 0.9fr) 26px 26px 26px";
 
 // Dependency types
 export interface DependencyTypeOption {

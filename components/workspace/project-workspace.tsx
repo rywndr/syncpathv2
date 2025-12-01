@@ -106,13 +106,11 @@ export function ProjectWorkspace({
             {/* Main content */}
             <div className="flex-1 overflow-hidden">
                 <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={50} minSize={40} maxSize={70}>
-                        <div className="h-full overflow-x-auto">
-                            <TaskList
-                                scrollRef={taskListRef}
-                                onScroll={handleTaskListScroll}
-                            />
-                        </div>
+                    <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                        <TaskList
+                            scrollRef={taskListRef}
+                            onScroll={handleTaskListScroll}
+                        />
                     </ResizablePanel>
 
                     <ResizableHandle withHandle />
