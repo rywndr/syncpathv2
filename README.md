@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Syncpathv2
 
-## Getting Started
+![Syncpath Landing Page](./public/landing-screenshot.png)
 
-First, run the development server:
+Sebuah aplikasi manajemen proyek dengan fitur Gantt chart yang dibuat dengan Next.js 16. Cocok buat kamu yang butuh visualisasi timeline proyek dengan tampilan yang clean dan modern.
+
+## Demo
+
+Cek langsung demo-nya di: [https://syncpathv2.vercel.app](https://syncpathtv2h.vercel.app)
+
+## Fitur
+
+- **Gantt Chart Interaktif** - Lihat tasks  dan timeline dalam satu tampilan
+- **Task Management** - Kelola tasks dengan mudah (CRUD + drag & drop)
+- **Real-time Sync** - Perubahan langsung ke-save
+- **Export** - Download sebagai PDF atau PNG
+- **Resizable Panels** - Atur ukuran panel task list dan gantt sesuai kemauan
+- **Auth System** - Login dengan email/password atau Google/GitHub (supported by better-auth)
+
+![Workspace Screenshot](./public/workspace-screenshot.png)
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router + Cache Components)
+- **Database**: PostgreSQL dengan Drizzle ORM
+- **Auth**: Better Auth
+- **State Management**: Zustand
+- **UI**: Tailwind CSS + shadcn/ui
+- **Form Handling**: TanStack Form + Zod
+- **Gantt Library**: gantt package
+
+## Cara Install
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL (atau bisa pake Neon/Supabase/Local instance via Docker)
+- npm/yarn/pnpm
+
+### Langkah-langkah
+
+1. **Clone repo**
+
+```bash
+git clone https://github.com/rywndr/syncpathv2.git
+cd syncpathv2
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# atau
+pnpm install
+```
+
+3. **Setup environment variables**
+
+Copy file `.env.example` ke `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Terus isi sesuai kredensial:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/syncpath"
+
+# Auth
+BETTER_AUTH_SECRET="generate-random-string-disini"
+BETTER_AUTH_URL="http://localhost:3000"
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+GITHUB_CLIENT_ID="..."
+GITHUB_CLIENT_SECRET="..."
+```
+
+4. **Push schema ke database**
+
+```bash
+npx drizzle-kit push
+```
+
+5. **Jalankan development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. **Buka browser**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Akses [http://localhost:3000](http://localhost:3000) 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Kontribusi 🤝
 
-## Learn More
+Feel free buat submit PR atau buka issue kalo nemu bug. Semua kontribusi diapresiasi!
 
-To learn more about Next.js, take a look at the following resources:
+## Lisensi
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+MIT License - bebas dipake dan dimodifikasi sesuka hati.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Made with lots of ☕ dan banyak debugging session.
