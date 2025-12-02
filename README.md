@@ -2,7 +2,8 @@
 
 ![Syncpath Landing Page](./public/landing-screenshot.png)
 
-Sebuah aplikasi manajemen proyek dengan fitur Gantt chart yang dibuat dengan Next.js 16. Cocok buat kamu yang butuh visualisasi timeline proyek dengan tampilan yang clean dan modern.
+Sebuah aplikasi manajemen proyek dengan fitur Gantt chart yang dibuat dengan Next.js 16. Cocok buat kamu yang butuh visualisasi timeline proyek dengan tampilan yang clean dan modern. aplikasi ini merupakan sebuah project untuk men-support mata kuliah MPTI dan merupakan iterasi kedua dari Syncpathv1 yaitu
+[https://github.com/rywndr/mpti_proj](https://github.com/rywndr/mpti_proj)
 
 ## Demo
 
