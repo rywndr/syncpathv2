@@ -17,7 +17,7 @@ export function WorkspacePreview() {
                         </div>
                         <div className="flex-1 text-center">
                             <div className="mx-auto max-w-md rounded-md bg-background px-4 py-1 text-xs text-muted-foreground">
-                                syncpath.app/projects/workspace
+                                syncpath.hunting-gear.net/projects/workspace
                             </div>
                         </div>
                     </div>
