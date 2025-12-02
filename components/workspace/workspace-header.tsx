@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Download, Upload, Settings } from "lucide-react";
+import { Plus, Download, Settings } from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
