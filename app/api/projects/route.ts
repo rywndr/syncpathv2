@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 
@@ -6,6 +7,10 @@ import { project } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-server";
 
 export async function GET() {
+    // Signal that this route requires dynamic rendering
+    // This is required in Next.js 16 with cacheComponents
+    await connection();
+
     try {
         const session = await getSession();
 

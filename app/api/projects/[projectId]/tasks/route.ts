@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { connection, NextRequest, NextResponse } from "next/server";
 import { eq, asc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
@@ -9,6 +9,10 @@ export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ projectId: string }> },
 ) {
+    // Signal that this route requires dynamic rendering
+    // This is required in Next.js 16 with cacheComponents
+    await connection();
+
     try {
         const session = await getSession();
 
