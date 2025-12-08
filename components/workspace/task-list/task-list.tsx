@@ -155,17 +155,17 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
 
     return (
         <TooltipProvider delayDuration={300}>
-            <div className="h-full w-full border-r bg-background overflow-x-auto">
-                <div className="flex h-full flex-col min-w-[700px]">
-                    {/* Header */}
-                    <TaskListHeader gridTemplate={GRID_TEMPLATE} />
+            <div className="h-full w-full border-r bg-background">
+                <div
+                    ref={ref}
+                    onScroll={handleScroll}
+                    className="h-full w-full overflow-auto"
+                >
+                    <div className="min-w-[700px]">
+                        {/* Header */}
+                        <TaskListHeader gridTemplate={GRID_TEMPLATE} />
 
-                    {/* List */}
-                    <div
-                        ref={ref}
-                        onScroll={handleScroll}
-                        className="flex-1 overflow-y-auto overflow-x-hidden"
-                    >
+                        {/* Task rows */}
                         {flatTasks.map((node) => (
                             <TaskRow
                                 key={node.task.id}
