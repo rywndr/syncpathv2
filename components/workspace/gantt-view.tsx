@@ -10,6 +10,7 @@ import {
     transformTasksToGanttItems,
     GANTT_LAYOUT,
 } from "@/lib/gantt";
+import { useDragToPan } from "@/lib/hooks";
 import type { GanttOptions } from "gantt";
 
 interface GanttViewProps {
@@ -31,6 +32,10 @@ export function GanttView({
     const [isClient, setIsClient] = useState(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Enable drag-to-pan
+    useDragToPan(containerRef);
+
     const ganttInstanceRef = useRef<InstanceType<
         typeof import("gantt").SVGGantt
     > | null>(null);

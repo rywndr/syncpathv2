@@ -9,7 +9,6 @@ import {
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { ViewMode, GANTT_LAYOUT } from "@/lib/gantt";
-import { useDragToPan } from "@/lib/hooks";
 import { WorkspaceHeader } from "./workspace-header";
 import { TaskList } from "./task-list";
 import { GanttView } from "./gantt-view";
@@ -50,9 +49,6 @@ export function ProjectWorkspace({
     useEffect(() => {
         initWorkspace(projectId, initialTasks);
     }, [projectId, initialTasks, initWorkspace]);
-
-    // Enable drag-to-pan on the Gantt chart
-    useDragToPan(ganttRef);
 
     // Scroll Sync Handlers
     // flag to prevent infinite loops when updating scroll positions

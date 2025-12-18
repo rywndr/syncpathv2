@@ -37,18 +37,26 @@ export function useDragToPan<T extends HTMLElement>(
 
             // Don't interfere with interactive elements
             const target = e.target as HTMLElement;
+            const computedStyle = window.getComputedStyle(target);
+
             if (
                 target.closest("button") ||
                 target.closest("input") ||
-                target.closest("a")
+                target.closest("a") ||
+                target.closest("[role='button']") ||
+                target.closest(".gantt-bar") ||
+                target.closest(".handle") ||
+                computedStyle.cursor === "pointer" ||
+                computedStyle.cursor === "text" ||
+                computedStyle.cursor === "col-resize"
             ) {
                 return;
             }
 
             dragState.current = {
                 isDragging: true,
-                startX: e.pageX - container.offsetLeft,
-                startY: e.pageY - container.offsetTop,
+                startX: e.clientX,
+                startY: e.clientY,
                 scrollLeft: container.scrollLeft,
                 scrollTop: container.scrollTop,
             };
@@ -66,10 +74,8 @@ export function useDragToPan<T extends HTMLElement>(
 
             e.preventDefault();
 
-            const x = e.pageX - container.offsetLeft;
-            const y = e.pageY - container.offsetTop;
-            const walkX = x - dragState.current.startX;
-            const walkY = y - dragState.current.startY;
+            const walkX = e.clientX - dragState.current.startX;
+            const walkY = e.clientY - dragState.current.startY;
 
             container.scrollLeft = dragState.current.scrollLeft - walkX;
             container.scrollTop = dragState.current.scrollTop - walkY;
@@ -82,21 +88,23 @@ export function useDragToPan<T extends HTMLElement>(
         if (!container) return;
 
         dragState.current.isDragging = false;
-        container.style.cursor = "";
+        container.style.cursor = enabled ? "grab" : "";
         container.style.userSelect = "";
-    }, [containerRef]);
+    }, [containerRef, enabled]);
 
     useEffect(() => {
         const container = containerRef.current;
         if (!container || !enabled) return;
 
-        container.addEventListener("mousedown", handleMouseDown);
+        container.style.cursor = "grab";
+        container.addEventListener("mousedown", handleMouseDown, true);
         document.addEventListener("mousemove", handleMouseMove);
         document.addEventListener("mouseup", handleMouseUp);
         document.addEventListener("mouseleave", handleMouseUp);
 
         return () => {
-            container.removeEventListener("mousedown", handleMouseDown);
+            container.style.cursor = "";
+            container.removeEventListener("mousedown", handleMouseDown, true);
             document.removeEventListener("mousemove", handleMouseMove);
             document.removeEventListener("mouseup", handleMouseUp);
             document.removeEventListener("mouseleave", handleMouseUp);
