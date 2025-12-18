@@ -4,17 +4,47 @@ import { revalidateTag } from "next/cache";
 import { eq, and } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { task, Task, NewTask } from "@/lib/db/schema";
+import { task, project, Task, NewTask } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth-server";
+
+/**
+ * Helper to verify if a user has permission to edit tasks in a project
+ */
+async function verifyEditPermission(projectId: string) {
+    const session = await getSession();
+
+    const existingProject = await db
+        .select()
+        .from(project)
+        .where(eq(project.id, projectId))
+        .limit(1);
+
+    if (!existingProject[0]) {
+        return { allowed: false, error: "Project not found" };
+    }
+
+    const proj = existingProject[0];
+    const isOwner = session?.user?.id === proj.userId;
+    const canEditShared = proj.isShared && proj.sharePermission === "edit";
+
+    if (isOwner || canEditShared) {
+        return { allowed: true };
+    }
+
+    return {
+        allowed: false,
+        error: "Write access is disabled by the owner",
+    };
+}
 
 export async function batchUpdateTasks(
     projectId: string,
     updates: Partial<Task>[],
 ) {
     try {
-        const session = await getSession();
-        if (!session?.user) {
-            return { success: false, error: "Unauthorized" };
+        const { allowed, error } = await verifyEditPermission(projectId);
+        if (!allowed) {
+            return { success: false, error: error || "Unauthorized" };
         }
 
         // Process updates in a transaction
@@ -50,9 +80,9 @@ export async function batchUpdateTasks(
 
 export async function createTask(projectId: string, data: Partial<NewTask>) {
     try {
-        const session = await getSession();
-        if (!session?.user) {
-            return { success: false, error: "Unauthorized" };
+        const { allowed, error } = await verifyEditPermission(projectId);
+        if (!allowed) {
+            return { success: false, error: error || "Unauthorized" };
         }
 
         // Ensure we don't allow overriding projectId or id via spread
@@ -85,9 +115,9 @@ export async function createTask(projectId: string, data: Partial<NewTask>) {
 
 export async function deleteTask(taskId: string, projectId: string) {
     try {
-        const session = await getSession();
-        if (!session?.user) {
-            return { success: false, error: "Unauthorized" };
+        const { allowed, error } = await verifyEditPermission(projectId);
+        if (!allowed) {
+            return { success: false, error: error || "Unauthorized" };
         }
 
         await db

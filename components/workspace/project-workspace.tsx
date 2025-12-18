@@ -18,6 +18,10 @@ interface ProjectWorkspaceProps {
     projectId: string;
     projectName?: string;
     initialTasks: Task[];
+    isShared?: boolean;
+    sharePermission?: "view" | "edit";
+    isReadOnly?: boolean;
+    isOwner?: boolean;
 }
 
 const VIEW_MODE_OPTIONS: { mode: ViewMode; label: string }[] = [
@@ -30,6 +34,10 @@ export function ProjectWorkspace({
     projectId,
     projectName = "Project",
     initialTasks,
+    isShared = false,
+    sharePermission = "view",
+    isReadOnly = false,
+    isOwner = false,
 }: ProjectWorkspaceProps) {
     const { initWorkspace, showLinks, showDelay } = useWorkspaceStore();
     const [viewMode, setViewMode] = useState<ViewMode>("day");
@@ -43,7 +51,7 @@ export function ProjectWorkspace({
         initWorkspace(projectId, initialTasks);
     }, [projectId, initialTasks, initWorkspace]);
 
-    // Enable drag-to-pan on Gantt chart
+    // Enable drag-to-pan on the Gantt chart
     useDragToPan(ganttRef);
 
     // Scroll Sync Handlers
@@ -86,6 +94,10 @@ export function ProjectWorkspace({
             <WorkspaceHeader
                 ganttContainerRef={ganttContainerRef}
                 projectName={projectName}
+                isShared={isShared}
+                sharePermission={sharePermission}
+                isOwner={isOwner}
+                isReadOnly={isReadOnly}
             />
 
             {/* Toolbar  */}
@@ -111,6 +123,11 @@ export function ProjectWorkspace({
                         </button>
                     ))}
                 </div>
+                {isReadOnly && (
+                    <div className="ml-auto flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                        View Only
+                    </div>
+                )}
             </div>
 
             {/* Main content */}
@@ -120,6 +137,7 @@ export function ProjectWorkspace({
                         <TaskList
                             scrollRef={taskListRef}
                             onScroll={handleTaskListScroll}
+                            isReadOnly={isReadOnly}
                         />
                     </ResizablePanel>
 

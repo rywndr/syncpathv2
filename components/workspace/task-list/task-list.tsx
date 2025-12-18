@@ -9,7 +9,11 @@ import { TaskListHeader } from "./task-list-header";
 import { TaskRow } from "./task-row";
 import { TaskListProps, DragState, DropPosition } from "./types";
 
-export function TaskList({ onScroll, scrollRef }: TaskListProps) {
+export function TaskList({
+    onScroll,
+    scrollRef,
+    isReadOnly = false,
+}: TaskListProps) {
     const {
         tasks,
         updateTask,
@@ -65,6 +69,8 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
     // Drag handlers
     const handleDragStart = useCallback(
         (e: React.DragEvent, taskId: string) => {
+            if (isReadOnly) return;
+
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", taskId);
             setDragState({
@@ -73,7 +79,7 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
                 dropPosition: null,
             });
         },
-        [],
+        [isReadOnly],
     );
 
     const handleDragEnd = useCallback(() => {
@@ -85,6 +91,7 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
             e.preventDefault();
             e.stopPropagation();
 
+            if (isReadOnly) return;
             if (dragState.draggedTaskId === taskId) return;
 
             const rect = e.currentTarget.getBoundingClientRect();
@@ -113,7 +120,7 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
                 dropPosition: position,
             }));
         },
-        [dragState.draggedTaskId],
+        [dragState.draggedTaskId, isReadOnly],
     );
 
     const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -134,6 +141,8 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
             e.preventDefault();
             e.stopPropagation();
 
+            if (isReadOnly) return;
+
             const draggedTaskId = e.dataTransfer.getData("text/plain");
 
             if (
@@ -150,19 +159,20 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
 
             setDragState(INITIAL_DRAG_STATE);
         },
-        [dragState.dropPosition, reorderTasks],
+        [dragState.dropPosition, reorderTasks, isReadOnly],
     );
 
     return (
         <TooltipProvider delayDuration={300}>
             <div className="h-full w-full border-r bg-background">
+                {/* Single scrollable container - header scrolls with content like Gantt */}
                 <div
                     ref={ref}
                     onScroll={handleScroll}
                     className="h-full w-full overflow-auto"
                 >
                     <div className="min-w-[700px]">
-                        {/* Header */}
+                        {/* Header - scrolls with content */}
                         <TaskListHeader gridTemplate={GRID_TEMPLATE} />
 
                         {/* Task rows */}
@@ -179,10 +189,16 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
                                 onToggleCollapse={() =>
                                     toggleGroupCollapse(node.task.id)
                                 }
-                                onUpdate={(updates) =>
-                                    updateTask(node.task.id, updates)
-                                }
-                                onDelete={() => removeTask(node.task.id)}
+                                onUpdate={(updates) => {
+                                    if (!isReadOnly) {
+                                        updateTask(node.task.id, updates);
+                                    }
+                                }}
+                                onDelete={() => {
+                                    if (!isReadOnly) {
+                                        removeTask(node.task.id);
+                                    }
+                                }}
                                 // Drag and drop props
                                 isDragging={
                                     dragState.draggedTaskId === node.task.id
@@ -208,6 +224,7 @@ export function TaskList({ onScroll, scrollRef }: TaskListProps) {
                                 }
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(e, node.task.id)}
+                                isReadOnly={isReadOnly}
                             />
                         ))}
                     </div>

@@ -15,10 +15,6 @@ async function ProjectWorkspaceLoader({
     const { projectId } = await params;
     const session = await getSession();
 
-    if (!session) {
-        redirect("/login");
-    }
-
     const existingProject = await db
         .select()
         .from(project)
@@ -29,8 +25,21 @@ async function ProjectWorkspaceLoader({
         notFound();
     }
 
-    if (existingProject[0].userId !== session.user.id) {
-        redirect("/projects");
+    const projectData = existingProject[0];
+    const isOwner = session?.user?.id === projectData.userId;
+    const isShared = projectData.isShared;
+
+    // Access control logic
+    if (!isOwner) {
+        // If not owner and not shared, redirect to login or projects
+        if (!isShared) {
+            if (!session) {
+                redirect("/login");
+            } else {
+                redirect("/projects");
+            }
+        }
+        // If shared, allow access (public view)
     }
 
     const tasks = await db
@@ -39,11 +48,22 @@ async function ProjectWorkspaceLoader({
         .where(eq(task.projectId, projectId))
         .orderBy(asc(task.createdAt));
 
+    // Determine read-only status
+    // Owner always has edit access
+    // Visitors have edit access only if shared with 'edit' permission
+    const isReadOnly =
+        !isOwner &&
+        (!isShared || (projectData.sharePermission || "view") === "view");
+
     return (
         <ProjectWorkspace
             projectId={projectId}
-            projectName={existingProject[0].name}
+            projectName={projectData.name}
             initialTasks={tasks}
+            isShared={projectData.isShared}
+            sharePermission={projectData.sharePermission || "view"}
+            isReadOnly={isReadOnly}
+            isOwner={isOwner}
         />
     );
 }

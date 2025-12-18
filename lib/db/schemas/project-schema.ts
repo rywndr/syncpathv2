@@ -6,6 +6,7 @@ import {
     jsonb,
     index,
     pgEnum,
+    boolean,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -22,6 +23,7 @@ export const dependencyTypeEnum = pgEnum("dependency_type", [
     "SS", // Start-Start
     "SF", // Start-Finish
 ]);
+export const sharePermissionEnum = pgEnum("share_permission", ["view", "edit"]);
 
 // Types for the dependency JSON structure
 export type TaskDependency = {
@@ -36,6 +38,9 @@ export const project = pgTable(
         id: text("id").primaryKey(),
         name: text("name").notNull(),
         userId: text("user_id").notNull(),
+        isShared: boolean("is_shared").default(false).notNull(),
+        sharePermission:
+            sharePermissionEnum("share_permission").default("view"),
         createdAt: timestamp("created_at").defaultNow().notNull(),
         updatedAt: timestamp("updated_at")
             .defaultNow()
@@ -45,6 +50,7 @@ export const project = pgTable(
     (table) => [
         index("project_userId_idx").on(table.userId),
         index("project_createdAt_idx").on(table.createdAt),
+        index("project_isShared_idx").on(table.isShared),
     ],
 );
 

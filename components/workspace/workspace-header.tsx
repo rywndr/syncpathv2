@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Download, Settings } from "lucide-react";
+import { Plus, Download, Settings, Share2 } from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store/workspace-store";
 import { Task } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -22,16 +22,25 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ExportDialog } from "./export-dialog";
+import { ShareDialog } from "./share-dialog";
 import { buildTaskHierarchy } from "@/lib/gantt/types";
 
 interface WorkspaceHeaderProps {
     ganttContainerRef: React.RefObject<HTMLDivElement | null>;
     projectName?: string;
+    isShared?: boolean;
+    sharePermission?: "view" | "edit";
+    isOwner?: boolean;
+    isReadOnly?: boolean;
 }
 
 export function WorkspaceHeader({
     ganttContainerRef,
     projectName = "Project",
+    isShared = false,
+    sharePermission = "view",
+    isOwner = false,
+    isReadOnly = false,
 }: WorkspaceHeaderProps) {
     const {
         addTask,
@@ -46,12 +55,13 @@ export function WorkspaceHeader({
 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
 
     // Build task hierarchy for export
     const taskNodes = buildTaskHierarchy(tasks, siblingOrder);
 
     const handleAddTask = () => {
-        if (!projectId) return;
+        if (!projectId || isReadOnly) return;
 
         const newTask: Task = {
             id: crypto.randomUUID(),
@@ -204,33 +214,49 @@ export function WorkspaceHeader({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                size="sm"
-                                onClick={handleAddTask}
-                                className="h-8 w-8 p-0"
-                            >
-                                <Plus className="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Add new task</TooltipContent>
-                    </Tooltip>
+                <div className="flex items-center gap-2">
+                    <Button
+                        size="sm"
+                        onClick={handleAddTask}
+                        disabled={isReadOnly}
+                        className="h-8 gap-2"
+                    >
+                        <Plus className="size-4" />
+                        <span className="hidden sm:inline">Add Task</span>
+                    </Button>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => setExportOpen(true)}
-                            >
-                                <Download className="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Export project</TooltipContent>
-                    </Tooltip>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-2"
+                        onClick={() => setExportOpen(true)}
+                    >
+                        <Download className="size-4" />
+                        <span className="hidden sm:inline">Export</span>
+                    </Button>
+
+                    {isOwner && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-2"
+                            onClick={() => setShareOpen(true)}
+                        >
+                            <Share2 className="size-4" />
+                            <span className="hidden sm:inline">Share</span>
+                        </Button>
+                    )}
+
+                    {/* Share Dialog */}
+                    {projectId && isOwner && (
+                        <ShareDialog
+                            projectId={projectId}
+                            initialIsShared={isShared}
+                            initialPermission={sharePermission}
+                            open={shareOpen}
+                            onOpenChange={setShareOpen}
+                        />
+                    )}
 
                     {/* Export Dialog */}
                     <ExportDialog
@@ -243,20 +269,15 @@ export function WorkspaceHeader({
 
                     {/* Settings Dialog */}
                     <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <DialogTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 w-8 p-0"
-                                    >
-                                        <Settings className="size-4" />
-                                    </Button>
-                                </DialogTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent>Settings</TooltipContent>
-                        </Tooltip>
+                        <DialogTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                            >
+                                <Settings className="size-4" />
+                            </Button>
+                        </DialogTrigger>
 
                         <DialogContent className="sm:max-w-[400px]">
                             <DialogHeader>

@@ -1,30 +1,15 @@
 import { Task } from "@/lib/db/schema";
 
-/**
- * Drag and drop pos types
- */
-export type DropPosition = "before" | "after" | "inside";
-
-/**
- * Drag state for task list
- */
-export interface DragState {
-    draggedTaskId: string | null;
-    dragOverTaskId: string | null;
-    dropPosition: DropPosition | null;
-}
-
-/**
- * Props for main TaskList component
- */
 export interface TaskListProps {
     onScroll?: (scrollTop: number) => void;
     scrollRef?: React.RefObject<HTMLDivElement | null>;
+    isReadOnly?: boolean;
 }
 
-/**
- * Props for TaskRow component
- */
+export interface TaskListHeaderProps {
+    gridTemplate: string;
+}
+
 export interface TaskRowProps {
     task: Task;
     allTasks: Task[];
@@ -45,18 +30,17 @@ export interface TaskRowProps {
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
     onDrop: (e: React.DragEvent) => void;
+    isReadOnly?: boolean;
 }
 
-/**
- * Props for TaskListHeader component
- */
-export interface TaskListHeaderProps {
-    gridTemplate: string;
+export type DropPosition = "before" | "after" | "inside";
+
+export interface DragState {
+    draggedTaskId: string | null;
+    dragOverTaskId: string | null;
+    dropPosition: DropPosition | null;
 }
 
-/**
- * Props for DependenciesDialog component
- */
 export interface DependenciesDialogProps {
     task: Task;
     allTasks: Task[];
