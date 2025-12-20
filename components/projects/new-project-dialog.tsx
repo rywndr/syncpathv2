@@ -33,7 +33,8 @@ export function NewProjectDialog() {
         onSubmit: async ({ value }) => {
             setIsLoading(true);
             try {
-                const result = await createProject(value.name);
+                const projectName = value.name.trim() || "Untitled Project";
+                const result = await createProject(projectName);
 
                 if (result.success) {
                     toast.success("Project created successfully!");
@@ -79,13 +80,14 @@ export function NewProjectDialog() {
                             name="name"
                             validators={{
                                 onSubmit: ({ value }) => {
-                                    if (!value || value.trim().length === 0) {
-                                        return "Project name is required";
+                                    const trimmed = value ? value.trim() : "";
+                                    if (trimmed.length === 0) {
+                                        return undefined;
                                     }
-                                    if (value.trim().length < 3) {
+                                    if (trimmed.length < 3) {
                                         return "Project name must be at least 3 characters";
                                     }
-                                    if (value.trim().length > 100) {
+                                    if (trimmed.length > 100) {
                                         return "Project name must be less than 100 characters";
                                     }
                                     return undefined;
@@ -97,7 +99,7 @@ export function NewProjectDialog() {
                                     <Label htmlFor="name">Project Name</Label>
                                     <Input
                                         id="name"
-                                        placeholder="Enter project name..."
+                                        placeholder="Untitled Project"
                                         value={field.state.value}
                                         onChange={(e) =>
                                             field.handleChange(e.target.value)
