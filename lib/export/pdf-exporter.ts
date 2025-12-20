@@ -235,8 +235,9 @@ export class PdfExporter implements ExportStrategy {
         yPos += 12;
 
         try {
-            // Convert SVG to PNG data URL
-            const dataUrl = await svgToDataUrl(ganttSvg, 2);
+            // Convert SVG to JPEG data URL with compression (0.8 quality)
+            // Scale 2 but JPEG compression keeps size down
+            const dataUrl = await svgToDataUrl(ganttSvg, 2, "image/jpeg", 0.8);
 
             // Calculate dimensions to fit the page
             const svgBbox = ganttSvg.getBoundingClientRect();
@@ -253,7 +254,7 @@ export class PdfExporter implements ExportStrategy {
             }
 
             // Add the image
-            pdf.addImage(dataUrl, "PNG", margin, yPos, imgWidth, imgHeight);
+            pdf.addImage(dataUrl, "JPEG", margin, yPos, imgWidth, imgHeight);
         } catch (error) {
             console.error("Failed to add Gantt chart image:", error);
             pdf.setFontSize(12);

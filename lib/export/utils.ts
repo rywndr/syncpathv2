@@ -94,10 +94,7 @@ export function prepareTasksForExport(
             startDate: formatExportDate(node.task.startDate),
             endDate: formatExportDate(node.task.endDate),
             cost,
-            duration: calculateDuration(
-                node.task.startDate,
-                node.task.endDate,
-            ),
+            duration: calculateDuration(node.task.startDate, node.task.endDate),
             depth: node.depth,
         });
 
@@ -139,6 +136,8 @@ export function generateExportFilename(
 export async function svgToDataUrl(
     svgElement: SVGElement,
     scale: number = 2,
+    format: "image/png" | "image/jpeg" = "image/jpeg",
+    quality: number = 0.8,
 ): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
@@ -149,6 +148,14 @@ export async function svgToDataUrl(
             const bbox = svgElement.getBoundingClientRect();
             const width = bbox.width;
             const height = bbox.height;
+
+            // Limit max dimension to avoid huge canvases and file sizes (max 4000px)
+            const MAX_DIMENSION = 4000;
+            const maxSide = Math.max(width, height);
+            const effectiveScale =
+                maxSide * scale > MAX_DIMENSION
+                    ? MAX_DIMENSION / maxSide
+                    : scale;
 
             // Set explicit dimensions on the cloned SVG
             clonedSvg.setAttribute("width", String(width));
@@ -166,8 +173,8 @@ export async function svgToDataUrl(
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement("canvas");
-                canvas.width = width * scale;
-                canvas.height = height * scale;
+                canvas.width = width * effectiveScale;
+                canvas.height = height * effectiveScale;
 
                 const ctx = canvas.getContext("2d");
                 if (!ctx) {
@@ -180,14 +187,14 @@ export async function svgToDataUrl(
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 // Scale and draw
-                ctx.scale(scale, scale);
+                ctx.scale(effectiveScale, effectiveScale);
                 ctx.drawImage(img, 0, 0);
 
                 // Cleanup
                 URL.revokeObjectURL(url);
 
                 // Convert to data URL
-                resolve(canvas.toDataURL("image/png"));
+                resolve(canvas.toDataURL(format, quality));
             };
 
             img.onerror = () => {
@@ -229,6 +236,10 @@ export function downloadFile(
  * Convert data URL to Blob
  */
 function dataUrlToBlob(dataUrl: string, mimeType: string): Blob {
+    // Xtract mime type from data URL if not provided or if mismatches
+    const matches = dataUrl.match(/^data:(.+);base64,/);
+    const actualMimeType = matches ? matches[1] : mimeType;
+
     const byteString = atob(dataUrl.split(",")[1]);
     const ab = new ArrayBuffer(byteString.length);
     const ia = new Uint8Array(ab);
@@ -237,5 +248,5 @@ function dataUrlToBlob(dataUrl: string, mimeType: string): Blob {
         ia[i] = byteString.charCodeAt(i);
     }
 
-    return new Blob([ab], { type: mimeType });
+    return new Blob([ab], { type: actualMimeType });
 }
