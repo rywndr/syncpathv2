@@ -94,6 +94,7 @@ export function ProjectWorkspace({
                 sharePermission={sharePermission}
                 isOwner={isOwner}
                 isReadOnly={isReadOnly}
+                projectId={projectId}
             />
 
             {/* Toolbar  */}

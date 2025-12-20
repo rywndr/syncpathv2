@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ExportDialog } from "./export-dialog";
 import { ShareDialog } from "./share-dialog";
+import { ProjectTitle } from "./project-title";
 import { buildTaskHierarchy } from "@/lib/gantt/types";
 
 interface WorkspaceHeaderProps {
@@ -32,6 +33,7 @@ interface WorkspaceHeaderProps {
     sharePermission?: "view" | "edit";
     isOwner?: boolean;
     isReadOnly?: boolean;
+    projectId?: string;
 }
 
 export function WorkspaceHeader({
@@ -41,10 +43,11 @@ export function WorkspaceHeader({
     sharePermission = "view",
     isOwner = false,
     isReadOnly = false,
+    projectId: propProjectId,
 }: WorkspaceHeaderProps) {
     const {
         addTask,
-        projectId,
+        projectId: storeProjectId,
         tasks,
         siblingOrder,
         showLinks,
@@ -56,6 +59,8 @@ export function WorkspaceHeader({
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [exportOpen, setExportOpen] = useState(false);
     const [shareOpen, setShareOpen] = useState(false);
+
+    const projectId = propProjectId || storeProjectId;
 
     // Build task hierarchy for export
     const taskNodes = buildTaskHierarchy(tasks, siblingOrder);
@@ -88,8 +93,19 @@ export function WorkspaceHeader({
         <TooltipProvider delayDuration={300}>
             <div className="flex h-12 items-center justify-between border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-4">
                 <div className="flex items-center gap-4">
+                    {projectId && (
+                        <>
+                            <ProjectTitle
+                                projectId={projectId}
+                                initialName={projectName}
+                                isReadOnly={!isOwner}
+                            />
+                            <div className="hidden lg:block h-4 w-px bg-border" />
+                        </>
+                    )}
+
                     {/* Task Types Legend */}
-                    <div className="flex items-center gap-1">
+                    <div className="hidden lg:flex items-center gap-1">
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-1">
                             Types
                         </span>
@@ -146,10 +162,10 @@ export function WorkspaceHeader({
                     </div>
 
                     {/* Divider */}
-                    <div className="h-4 w-px bg-border" />
+                    <div className="hidden lg:block h-4 w-px bg-border" />
 
                     {/* Status Legend */}
-                    <div className="flex items-center gap-1">
+                    <div className="hidden lg:flex items-center gap-1">
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-1">
                             Status
                         </span>
