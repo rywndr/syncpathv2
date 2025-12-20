@@ -37,7 +37,8 @@ export function useDragToPan<T extends HTMLElement>(
 
             // Don't interfere with interactive elements
             const target = e.target as HTMLElement;
-            const computedStyle = window.getComputedStyle(target);
+
+            if (!(target instanceof Element)) return;
 
             if (
                 target.closest("button") ||
@@ -45,10 +46,7 @@ export function useDragToPan<T extends HTMLElement>(
                 target.closest("a") ||
                 target.closest("[role='button']") ||
                 target.closest(".gantt-bar") ||
-                target.closest(".handle") ||
-                computedStyle.cursor === "pointer" ||
-                computedStyle.cursor === "text" ||
-                computedStyle.cursor === "col-resize"
+                target.closest(".handle")
             ) {
                 return;
             }
