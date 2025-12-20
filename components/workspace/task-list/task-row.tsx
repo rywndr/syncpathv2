@@ -7,6 +7,7 @@ import {
     GripVertical,
     Trash2,
     Calendar as CalendarIcon,
+    User,
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { DependenciesDialog } from "./dependencies-dialog";
 import { TaskRowProps } from "./types";
 
@@ -374,11 +377,47 @@ export function TaskRow({
                 </div>
 
                 {/* Assignee */}
-                <div className="flex justify-center">
-                    <div className="size-5 rounded-full bg-muted flex items-center justify-center text-[10px] text-muted-foreground">
-                        {/* Placeholder for assignee avatar */}
-                        {task.assignee ? task.assignee[0].toUpperCase() : "?"}
-                    </div>
+                <div className="flex justify-center px-0.5">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <button
+                                disabled={isReadOnly}
+                                className="size-6 rounded-full hover:bg-muted/50 flex items-center justify-center transition-colors disabled:cursor-default disabled:hover:bg-transparent"
+                            >
+                                <Avatar className="size-5">
+                                    <AvatarFallback className="text-[9px] bg-muted text-muted-foreground">
+                                        {task.assignee ? (
+                                            task.assignee
+                                                .slice(0, 2)
+                                                .toUpperCase()
+                                        ) : (
+                                            <User className="size-3" />
+                                        )}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </button>
+                        </PopoverTrigger>
+                        {!isReadOnly && (
+                            <PopoverContent className="w-48 p-2">
+                                <div className="space-y-2">
+                                    <h4 className="font-medium leading-none text-xs">
+                                        Assignee
+                                    </h4>
+                                    <Input
+                                        className="h-8 text-xs"
+                                        placeholder="Enter name..."
+                                        value={task.assignee || ""}
+                                        onChange={(e) =>
+                                            onUpdate({
+                                                assignee:
+                                                    e.target.value || null,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            </PopoverContent>
+                        )}
+                    </Popover>
                 </div>
 
                 {/* Dependencies */}
