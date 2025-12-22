@@ -10,12 +10,15 @@ import {
     Trash2,
     ExternalLink,
     Calendar,
+    Share2,
+    Copy,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Project } from "@/lib/db/schema";
 import { updateProject, deleteProject } from "@/lib/actions/project-actions";
 
+import { ShareDialog } from "@/components/workspace/share-dialog";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -30,6 +33,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
@@ -51,8 +55,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [name, setName] = useState(project.name);
+
+    const handleCopyLink = () => {
+        const url = `${window.location.origin}/projects/${project.id}`;
+        navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+    };
 
     const handleUpdate = async () => {
         if (name.trim() === project.name) {
@@ -164,6 +175,27 @@ export function ProjectCard({ project }: ProjectCardProps) {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                    <Link
+                                        href={`/projects/${project.id}`}
+                                        target="_blank"
+                                        className="cursor-pointer"
+                                    >
+                                        <ExternalLink className="mr-2 size-4" />
+                                        Open in New Tab
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleCopyLink}>
+                                    <Copy className="mr-2 size-4" />
+                                    Copy Link
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setIsShareOpen(true)}
+                                >
+                                    <Share2 className="mr-2 size-4" />
+                                    Share
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={() => setIsEditing(true)}
                                 >
@@ -229,6 +261,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <ShareDialog
+                projectId={project.id}
+                initialIsShared={project.isShared}
+                initialPermission={project.sharePermission || "view"}
+                open={isShareOpen}
+                onOpenChange={setIsShareOpen}
+            />
         </>
     );
 }
