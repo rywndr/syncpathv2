@@ -185,17 +185,14 @@ export function GanttView({
         };
     }, []);
 
-    if (tasks.length === 0) {
-        return (
-            <div className="flex h-full items-center justify-center text-muted-foreground bg-background">
-                No tasks to display
-            </div>
-        );
-    }
-
     return (
-        <div className="h-full w-full bg-background">
+        <div className="h-full w-full bg-background relative">
             <div ref={containerRef} className="h-full w-full overflow-auto" />
+            {tasks.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground pointer-events-none">
+                    No tasks to display
+                </div>
+            )}
         </div>
     );
 }
