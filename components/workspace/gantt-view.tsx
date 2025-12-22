@@ -76,6 +76,45 @@ export function GanttView({
             return;
         }
 
+        // Gantt unused empty whitespace that replaces gantt package's
+        // built-in task list fix
+        const fixGanttLayout = () => {
+            if (!containerRef.current) return;
+            const svg = containerRef.current.querySelector("svg");
+            if (!svg) return;
+
+            // Find first vertical line which usually separates grid and timeline
+            const lines = Array.from(svg.querySelectorAll("line"));
+            let minX = Infinity;
+
+            // Filter for vertical lines
+            for (const line of lines) {
+                const x1 = parseFloat(line.getAttribute("x1") || "0");
+                const x2 = parseFloat(line.getAttribute("x2") || "0");
+                // Check if vertical and not at the very edge (0)
+                if (Math.abs(x1 - x2) < 0.1 && x1 > 5) {
+                    if (x1 < minX) {
+                        minX = x1;
+                    }
+                }
+            }
+
+            // Fallback to text elements if no lines found
+            if (minX === Infinity) {
+                const texts = Array.from(svg.querySelectorAll("text"));
+                for (const text of texts) {
+                    const x = parseFloat(text.getAttribute("x") || "0");
+                    if (x < minX) minX = x;
+                }
+                // Adjust for potential padding
+                if (minX !== Infinity) minX = Math.max(0, minX - 10);
+            }
+
+            if (minX !== Infinity && minX > 0) {
+                svg.style.marginLeft = `-${minX}px`;
+            }
+        };
+
         const initGantt = async () => {
             const { SVGGantt } = await import("gantt");
 
@@ -88,6 +127,8 @@ export function GanttView({
                 barHeight: GANTT_LAYOUT.BAR_HEIGHT,
                 showLinks,
                 showDelay,
+                // @ts-expect-error: gridWidth is not in types but supported by library to hide built-in grid
+                gridWidth: 0,
             };
 
             // If gantt instance exists, update it; otherwise create new one
@@ -103,6 +144,9 @@ export function GanttView({
                     options,
                 );
             }
+
+            // Fix layout after render
+            fixGanttLayout();
         };
 
         initGantt();
