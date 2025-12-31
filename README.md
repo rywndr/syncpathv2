@@ -7,7 +7,7 @@ Sebuah aplikasi manajemen proyek dengan fitur Gantt chart yang dibuat dengan Nex
 
 ## Demo
 
-Cek langsung demo-nya di: [https://syncpathv2.vercel.app](https://syncpathtv2h.vercel.app)
+Cek langsung demo-nya di: [https://syncpath.hunting-gear.net](https://syncpath.hunting-gear.net/)
 
 ## Fitur
 
