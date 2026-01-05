@@ -2,24 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { createProject } from "@/lib/actions/project-actions";
+import { Project } from "@/lib/db/schemas/project-schema";
+import { updateProject } from "@/lib/actions/project-actions";
 import { ProjectForm } from "@/components/projects/project-form";
 
-export function NewProjectDialog() {
-    const [open, setOpen] = useState(false);
+interface EditProjectDialogProps {
+    project: Project;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function EditProjectDialog({
+    project,
+    open,
+    onOpenChange,
+}: EditProjectDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
@@ -30,14 +37,14 @@ export function NewProjectDialog() {
     }) => {
         setIsLoading(true);
         try {
-            const result = await createProject(values);
+            const result = await updateProject(project.id, values);
 
             if (result.success) {
-                toast.success("Project created successfully!");
-                setOpen(false);
+                toast.success("Project updated successfully!");
+                onOpenChange(false);
                 router.refresh();
             } else {
-                toast.error(result.error || "Failed to create project");
+                toast.error(result.error || "Failed to update project");
             }
         } catch {
             toast.error("Something went wrong. Please try again.");
@@ -47,26 +54,24 @@ export function NewProjectDialog() {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/25 transition-all hover:shadow-lg hover:shadow-blue-600/30">
-                    <Plus className="mr-2 size-4" />
-                    New Project
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create New Project</DialogTitle>
+                    <DialogTitle>Edit Project</DialogTitle>
                     <DialogDescription>
-                        Enter the details for your new project. You can add
-                        tasks later.
+                        Update the details for your project.
                     </DialogDescription>
                 </DialogHeader>
                 <ProjectForm
+                    defaultValues={{
+                        name: project.name,
+                        startDate: project.startDate,
+                        endDate: project.endDate,
+                    }}
                     onSubmit={handleSubmit}
-                    onCancel={() => setOpen(false)}
+                    onCancel={() => onOpenChange(false)}
                     isLoading={isLoading}
-                    submitLabel="Create Project"
+                    submitLabel="Save Changes"
                 />
             </DialogContent>
         </Dialog>

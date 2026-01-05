@@ -12,13 +12,15 @@ import {
     Calendar,
     Share2,
     Copy,
+    User,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { Project } from "@/lib/db/schema";
-import { updateProject, deleteProject } from "@/lib/actions/project-actions";
+import { Project } from "@/lib/db/schemas/project-schema";
+import { deleteProject } from "@/lib/actions/project-actions";
 
 import { ShareDialog } from "@/components/workspace/share-dialog";
+import { EditProjectDialog } from "@/components/projects/edit-project-dialog";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -45,7 +47,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
 
 interface ProjectCardProps {
     project: Project;
@@ -53,39 +54,15 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [name, setName] = useState(project.name);
 
     const handleCopyLink = () => {
         const url = `${window.location.origin}/projects/${project.id}`;
         navigator.clipboard.writeText(url);
         toast.success("Link copied to clipboard");
-    };
-
-    const handleUpdate = async () => {
-        if (name.trim() === project.name) {
-            setIsEditing(false);
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const result = await updateProject(project.id, name);
-            if (result.success) {
-                toast.success("Project updated successfully");
-                setIsEditing(false);
-                router.refresh();
-            } else {
-                toast.error(result.error || "Failed to update project");
-            }
-        } catch {
-            toast.error("Something went wrong");
-        } finally {
-            setIsLoading(false);
-        }
     };
 
     const handleDelete = async () => {
@@ -111,111 +88,110 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <Card className="transition-all hover:shadow-md">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                     <div className="flex-1 space-y-1">
-                        {isEditing ? (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    disabled={isLoading}
-                                    className="h-8"
-                                    autoFocus
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") handleUpdate();
-                                        if (e.key === "Escape") {
-                                            setIsEditing(false);
-                                            setName(project.name);
-                                        }
-                                    }}
-                                />
-                                <Button
-                                    size="sm"
-                                    onClick={handleUpdate}
-                                    disabled={isLoading}
-                                >
-                                    Save
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => {
-                                        setIsEditing(false);
-                                        setName(project.name);
-                                    }}
-                                    disabled={isLoading}
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
-                        ) : (
-                            <CardTitle className="line-clamp-1 text-base">
-                                <Link
-                                    href={`/projects/${project.id}`}
-                                    className="hover:underline focus:outline-none"
-                                >
-                                    {project.name}
-                                </Link>
-                            </CardTitle>
-                        )}
-                        <CardDescription className="flex items-center gap-1">
-                            <Calendar className="size-3" />
-                            Created{" "}
-                            {format(new Date(project.createdAt), "MMM d, yyyy")}
+                        <CardTitle className="line-clamp-1 text-base">
+                            <Link
+                                href={`/projects/${project.id}`}
+                                className="hover:underline focus:outline-none"
+                            >
+                                {project.name}
+                            </Link>
+                        </CardTitle>
+                        <CardDescription className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1">
+                                <Calendar className="size-3" />
+                                Created{" "}
+                                {format(
+                                    new Date(project.createdAt),
+                                    "MMM d, yyyy",
+                                )}
+                            </span>
+                            {project.owner && (
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <User className="size-3" />
+                                    Owner: {project.owner}
+                                </span>
+                            )}
                         </CardDescription>
                     </div>
-                    {!isEditing && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="-mr-2 h-8 w-8 text-muted-foreground"
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="-mr-2 h-8 w-8 text-muted-foreground"
+                            >
+                                <MoreVertical className="size-4" />
+                                <span className="sr-only">Open menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={`/projects/${project.id}`}
+                                    target="_blank"
+                                    className="cursor-pointer"
                                 >
-                                    <MoreVertical className="size-4" />
-                                    <span className="sr-only">Open menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                    <Link
-                                        href={`/projects/${project.id}`}
-                                        target="_blank"
-                                        className="cursor-pointer"
-                                    >
-                                        <ExternalLink className="mr-2 size-4" />
-                                        Open in New Tab
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleCopyLink}>
-                                    <Copy className="mr-2 size-4" />
-                                    Copy Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => setIsShareOpen(true)}
-                                >
-                                    <Share2 className="mr-2 size-4" />
-                                    Share
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={() => setIsEditing(true)}
-                                >
-                                    <Pencil className="mr-2 size-4" />
-                                    Rename
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
-                                    onClick={() => setIsDeleteOpen(true)}
-                                >
-                                    <Trash2 className="mr-2 size-4" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                                    <ExternalLink className="mr-2 size-4" />
+                                    Open in New Tab
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleCopyLink}>
+                                <Copy className="mr-2 size-4" />
+                                Copy Link
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => setIsShareOpen(true)}
+                            >
+                                <Share2 className="mr-2 size-4" />
+                                Share
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => setIsEditOpen(true)}
+                            >
+                                <Pencil className="mr-2 size-4" />
+                                Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setIsDeleteOpen(true)}
+                            >
+                                <Trash2 className="mr-2 size-4" />
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardHeader>
                 <CardContent>
-                    {/* Placeholder other things l8r */}
-                    <div className="h-2 w-full rounded-full bg-muted/20" />
+                    <div className="space-y-2">
+                        <div className="h-2 w-full rounded-full bg-muted/20" />
+
+                        {(project.startDate || project.endDate) && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                {project.startDate && (
+                                    <span>
+                                        Start:{" "}
+                                        {format(
+                                            new Date(project.startDate),
+                                            "MMM d",
+                                        )}
+                                    </span>
+                                )}
+                                {project.startDate && project.endDate && (
+                                    <span>-</span>
+                                )}
+                                {project.endDate && (
+                                    <span>
+                                        End:{" "}
+                                        {format(
+                                            new Date(project.endDate),
+                                            "MMM d",
+                                        )}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
                 <CardFooter>
                     <Button
@@ -268,6 +244,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 initialPermission={project.sharePermission || "view"}
                 open={isShareOpen}
                 onOpenChange={setIsShareOpen}
+            />
+
+            <EditProjectDialog
+                project={project}
+                open={isEditOpen}
+                onOpenChange={setIsEditOpen}
             />
         </>
     );

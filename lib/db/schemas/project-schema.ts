@@ -38,6 +38,9 @@ export const project = pgTable(
         id: text("id").primaryKey(),
         name: text("name").notNull(),
         userId: text("user_id").notNull(),
+        owner: text("owner"),
+        startDate: timestamp("start_date"),
+        endDate: timestamp("end_date"),
         isShared: boolean("is_shared").default(false).notNull(),
         sharePermission:
             sharePermissionEnum("share_permission").default("view"),
@@ -68,10 +71,10 @@ export const task = pgTable(
         startDate: timestamp("start_date"),
         endDate: timestamp("end_date"),
         duration: integer("duration"), // Duration in days, auto-calculated from start/end
-        assignee: text("assignee"), // Could be a user reference or just a name
+        assignee: text("assignee"), // Could be a user reference (a maybe) or just a name
         percentage: integer("percentage").default(0).notNull(), // 0-100
         status: taskStatusEnum("status").notNull().default("pending"),
-        cost: integer("cost").default(0), // Cost in Rupiah (stored as integer for precision)
+        cost: integer("cost").default(0), // Cost in Rupiah (stored as integer)
         dependencies: jsonb("dependencies")
             .$type<TaskDependency[]>()
             .default([]),
