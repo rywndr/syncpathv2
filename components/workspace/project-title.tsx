@@ -38,7 +38,7 @@ export function ProjectTitle({
 
         setIsLoading(true);
         try {
-            const result = await updateProject(projectId, finalName);
+            const result = await updateProject(projectId, { name: finalName });
             if (!result.success) {
                 setName(initialName);
                 toast.error(result.error || "Failed to update project name");

@@ -27,7 +27,11 @@ async function revalidateProjectCaches(userId: string) {
     revalidatePath("/dashboard");
 }
 
-export async function createProject(name: string) {
+export async function createProject(input: {
+    name: string;
+    startDate?: Date | null;
+    endDate?: Date | null;
+}) {
     try {
         const session = await getSession();
 
@@ -35,7 +39,7 @@ export async function createProject(name: string) {
             return { success: false, error: "Unauthorized" };
         }
 
-        const trimmedName = name.trim();
+        const trimmedName = input.name.trim();
 
         if (!trimmedName) {
             return { success: false, error: "Project name is required" };
@@ -61,6 +65,9 @@ export async function createProject(name: string) {
                 id: generateId(),
                 name: trimmedName,
                 userId: session.user.id,
+                owner: session.user.name,
+                startDate: input.startDate,
+                endDate: input.endDate,
             })
             .returning();
 
@@ -74,7 +81,14 @@ export async function createProject(name: string) {
     }
 }
 
-export async function updateProject(projectId: string, name: string) {
+export async function updateProject(
+    projectId: string,
+    input: {
+        name: string;
+        startDate?: Date | null;
+        endDate?: Date | null;
+    },
+) {
     try {
         const session = await getSession();
 
@@ -82,7 +96,7 @@ export async function updateProject(projectId: string, name: string) {
             return { success: false, error: "Unauthorized" };
         }
 
-        const trimmedName = name.trim();
+        const trimmedName = input.name.trim();
 
         if (!trimmedName) {
             return { success: false, error: "Project name is required" };
@@ -121,6 +135,8 @@ export async function updateProject(projectId: string, name: string) {
             .update(project)
             .set({
                 name: trimmedName,
+                startDate: input.startDate,
+                endDate: input.endDate,
                 updatedAt: new Date(),
             })
             .where(eq(project.id, projectId))
